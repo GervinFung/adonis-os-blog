@@ -1,4 +1,12 @@
-.PHONY: build test
+.PHONY: build test all
+MAKEFLAGS += --silent
+
+all:
+	make lint &&\
+		make typecheck &&\
+		make format-check &&\
+		make test &&\
+		make build
 
 NODE_BIN=node_modules/.bin/
 

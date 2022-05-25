@@ -1,8 +1,8 @@
-import testInsert from './insert';
+import testMutatePost from './post';
 
 const testMutation = () => {
     describe('Mutation', () => {
-        testInsert();
+        testMutatePost();
     });
 };
 

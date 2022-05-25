@@ -1,9 +1,10 @@
-import { InsertOneResult, MongoClient, ObjectId } from 'mongodb';
+import { InsertOneResult, MongoClient, ObjectId, UpdateResult } from 'mongodb';
 import {
     ChangeHexIdToMongoId,
     InsertPost,
     ReadPost,
     ShowPosts,
+    UpdatePost,
 } from '../../../../common/type';
 import { postsPerPage } from '../../../const';
 import mongodbConfig from './config';
@@ -65,7 +66,16 @@ const mongodb = (async () => {
             }
             return insertedIds;
         },
-        totalPosts: async () => await getPost().estimatedDocumentCount(),
+        totalPosts: async (): Promise<number> =>
+            (
+                await getPost()
+                    .find({
+                        timePublished: {
+                            $ne: undefined,
+                        },
+                    })
+                    .toArray()
+            ).length,
         showPosts: async ({
             skip,
         }: Readonly<{
@@ -74,7 +84,12 @@ const mongodb = (async () => {
             (
                 await getPost()
                     .find<ChangeHexIdToMongoId<ShowPosts[0]>>(
-                        {},
+                        {
+                            //ref: https://www.mongodb.com/docs/manual/reference/operator/query/
+                            timePublished: {
+                                $ne: undefined,
+                            },
+                        },
                         {
                             projection: {
                                 _id: 1,
@@ -90,7 +105,12 @@ const mongodb = (async () => {
             ).map(({ _id, ...props }) => ({ id: _id.toHexString(), ...props })),
         showPost: async (id: ObjectId): Promise<ReadPost> => {
             const post = await getPost().findOne<ReadPost>(
-                { _id: { $eq: id } },
+                {
+                    _id: id,
+                    timePublished: {
+                        $ne: undefined,
+                    },
+                },
                 {
                     projection: {
                         _id: 0,
@@ -108,10 +128,74 @@ const mongodb = (async () => {
             }
             return post;
         },
-        insertPost: async (
-            post: InsertPost
-        ): Promise<Readonly<InsertOneResult<Document>>> =>
-            await getPost().insertOne(post),
+        insertPost: async (post: InsertPost): Promise<ObjectId> => {
+            const { acknowledged, insertedId } = await getPost().insertOne(
+                post
+            );
+            if (!acknowledged) {
+                throw new Error(`Insert post failed`);
+            }
+            return insertedId;
+        },
+        deletePost: async (id: ObjectId): Promise<ObjectId> => {
+            const {
+                acknowledged,
+                matchedCount,
+                modifiedCount,
+                upsertedId,
+                upsertedCount,
+            } = await getPost().updateOne(
+                { _id: id },
+                {
+                    $set: {
+                        timePublished: undefined,
+                    },
+                }
+            );
+            if (!acknowledged) {
+                throw new Error(`Delete post failed for ${id}`);
+            }
+            const isOnePostSoftDeleted =
+                matchedCount === modifiedCount &&
+                modifiedCount === 1 &&
+                upsertedCount === 0 &&
+                upsertedId === null;
+            if (!isOnePostSoftDeleted) {
+                throw new Error(`There are duplicated id for ${id}`);
+            }
+            return id;
+        },
+        updatePost: async (
+            id: ObjectId,
+            post: UpdatePost
+        ): Promise<ObjectId> => {
+            const {
+                acknowledged,
+                matchedCount,
+                modifiedCount,
+                upsertedId,
+                upsertedCount,
+            } = await getPost().updateOne(
+                { _id: id },
+                {
+                    $set: {
+                        ...post,
+                    },
+                }
+            );
+            if (!acknowledged) {
+                throw new Error(`Update post failed for ${id}`);
+            }
+            const isOnePostSoftDeleted =
+                matchedCount === modifiedCount &&
+                modifiedCount === 1 &&
+                upsertedCount === 0 &&
+                upsertedId === null;
+            if (!isOnePostSoftDeleted) {
+                throw new Error(`There are duplicated id for ${id}`);
+            }
+            return id;
+        },
     };
 })();
 
