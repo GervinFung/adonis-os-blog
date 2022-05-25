@@ -24,13 +24,13 @@ const testPostsQuery = (dummyData: DummyData) =>
             expect(await mongo.showPosts({ skip: 1 })).toStrictEqual(
                 paginateDummyData({ start: 9, end: 17 })
             );
-            expect(await mongo.showPosts({ skip: 2 })).toStrictEqual(
-                paginateDummyData({ start: 18, end: 26 })
-            );
+            expect((await mongo.showPosts({ skip: 2 })).length).toBe(0);
         });
         it('should return total number of posts', async () => {
             const mongo = await mongodb;
-            expect(await mongo.totalPosts()).toBe(dummyData.length);
+            expect(await mongo.totalPosts()).toBe(
+                dummyData.filter((data) => data.timePublished).length
+            );
         });
     });
 

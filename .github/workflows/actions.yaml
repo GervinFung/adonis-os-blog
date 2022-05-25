@@ -22,7 +22,7 @@ jobs:
             - name: Setup MongoDB
               run: make setup-mongo
 
-            - name: Install Depedencies
+            - name: Install Dependencies
               run: make install
 
             - name: Run Linter

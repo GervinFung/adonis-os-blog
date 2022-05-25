@@ -11,21 +11,29 @@ type DummyData = ReadonlyArray<
         title: string;
         timeCreated: Date;
         timeUpdated: Date;
-        timePublished: Date;
+        timePublished: Date | undefined;
     }>
 >;
 
 const testQuery = () => {
     describe('Query', () => {
-        const dummyData: DummyData = Array.from({ length: 27 }, (_, index) => ({
-            _id: new ObjectId(),
-            content: `Content ${index}`,
-            description: `Description ${index}`,
-            title: `Title ${index}`,
-            timeCreated: new Date('2022-05-12T14:53:49.165Z'),
-            timeUpdated: new Date('2022-05-12T14:53:49.165Z'),
-            timePublished: new Date('2022-05-12T14:53:49.165Z'),
-        }));
+        const dummyData: DummyData = Array.from({ length: 27 }, (_, index) => {
+            const data = {
+                _id: new ObjectId(),
+                content: `Content ${index}`,
+                description: `Description ${index}`,
+                title: `Title ${index}`,
+                timeCreated: new Date('2022-05-12T14:53:49.165Z'),
+                timeUpdated: new Date('2022-05-12T14:53:49.165Z'),
+                timePublished: new Date('2022-05-12T14:53:49.165Z'),
+            };
+            return index < 18
+                ? data
+                : {
+                      ...data,
+                      timePublished: undefined,
+                  };
+        });
         beforeAll(async () => {
             const mongo = await mongodb;
             await mongo.clearCollections();

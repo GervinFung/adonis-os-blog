@@ -4,26 +4,33 @@ import mongodb from '../../../../../../src/util/api/database/mongo';
 
 const testPostQuery = (dummyData: DummyData) =>
     describe('Post', () => {
+        const post = (index: number) => {
+            const contentIndex = `Content ${index}`;
+            const postOne = dummyData.find(
+                (data) => data.content === contentIndex
+            );
+            if (!postOne) {
+                throw new Error(`post for ${contentIndex}`);
+            }
+            const { _id, content, description, title, timePublished } = postOne;
+            return {
+                _id,
+                content,
+                description,
+                title,
+                timePublished,
+            } as const;
+        };
+        it('should throw error for querying post with non-existent id', async () => {
+            const mongo = await mongodb;
+            expect(mongo.showPost(new ObjectId())).rejects.toThrowError();
+        });
+        it('should throw error for post with id and undefined published time', async () => {
+            const mongo = await mongodb;
+            expect(mongo.showPost(post(19)._id)).rejects.toThrowError();
+        });
         it('should query post with id', async () => {
             const mongo = await mongodb;
-            const post = (index: number) => {
-                const contentOne = `Content ${index}`;
-                const postOne = dummyData.find(
-                    (data) => data.content === contentOne
-                );
-                if (!postOne) {
-                    throw new Error(`post for ${contentOne}`);
-                }
-                const { _id, content, description, title, timePublished } =
-                    postOne;
-                return {
-                    _id,
-                    content,
-                    description,
-                    title,
-                    timePublished,
-                } as const;
-            };
             const removeId = ({
                 content,
                 description,
@@ -34,7 +41,7 @@ const testPostQuery = (dummyData: DummyData) =>
                 content: string;
                 description: string;
                 title: string;
-                timePublished: Date;
+                timePublished: Date | undefined;
             }>) => ({
                 content,
                 description,
