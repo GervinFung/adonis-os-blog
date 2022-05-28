@@ -4,7 +4,7 @@ import Pagination from './paginate';
 import { Item } from '../../../history';
 import axios from 'axios';
 import { postsPerPage, val } from '../../../util/const';
-import { ShowPosts } from '../../../common/type';
+import { ShowPosts } from '../../../common/type/post';
 import { blogParser } from '../../../parser';
 
 const Posts = ({

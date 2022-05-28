@@ -11,6 +11,19 @@ type Settings = Readonly<{
     setZIndex: () => void;
 }>;
 
+type SetAdminParams = Readonly<{
+    email: string;
+}>;
+
+type AdminSettings = Readonly<{
+    admin:
+        | undefined
+        | Readonly<{
+              email: string;
+          }>;
+    setAdmin: (_: SetAdminParams | undefined) => void;
+}>;
+
 const AppContext = React.createContext(
     (() => {
         const defaultSettings = {
@@ -22,6 +35,10 @@ const AppContext = React.createContext(
             setZIndex: () => {},
         } as Settings;
         return {
+            adminSettings: {
+                admin: undefined,
+                setAdmin: (_: SetAdminParams) => {},
+            } as AdminSettings,
             terminalSettings: defaultSettings,
             blogsSettings: {
                 ...defaultSettings,
@@ -137,6 +154,17 @@ const App = ({ Component, pageProps }: AppProps) => {
                     setIsOpen: setIsOpen('blogsSettings'),
                     setIsVisible: setIsVisible('blogsSettings'),
                     setZIndex: setZIndex('blogsSettings'),
+                },
+                adminSettings: {
+                    ...state.adminSettings,
+                    setAdmin: (admin) =>
+                        setState((prev) => ({
+                            ...prev,
+                            adminSettings: {
+                                ...prev.adminSettings,
+                                admin,
+                            },
+                        })),
                 },
             }}
         >

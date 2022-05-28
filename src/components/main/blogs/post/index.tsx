@@ -6,7 +6,7 @@ import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import rehypeReact from 'rehype-react';
-import { ReadPost } from '../../../../common/type';
+import { ReadPost } from '../../../../common/type/post';
 import { blogParser } from '../../../../parser';
 import { val } from '../../../../util/const';
 import { capitalize } from 'granula-string';

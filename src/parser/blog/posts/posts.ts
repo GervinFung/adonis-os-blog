@@ -3,7 +3,7 @@ import {
     parseAsReadonlyObject,
     parseAsString,
 } from 'parse-dont-validate';
-import { ShowPosts } from '../../../common/type';
+import { ShowPosts } from '../../../common/type/post';
 
 const parseAsPosts = (posts: unknown): ShowPosts =>
     parseAsReadonlyArray(posts, (post) =>

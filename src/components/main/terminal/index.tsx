@@ -60,7 +60,7 @@ const Terminal = ({
         position: { latest, previous },
     } = state;
 
-    const maxHeight = '100vh';
+    const maxHeight = '100%';
 
     const isFullHeight = isFullHeightFunc(height, maxHeight);
 
@@ -76,7 +76,8 @@ const Terminal = ({
                 }}
                 className={css`
                     position: absolute;
-                    left: 25%;
+                    height: 100%;
+                    left: ${isFullHeight ? '0' : '25%'};
                     z-index: ${zIndex};
                     width: ${width};
                     transform: translate(${latest.x}, ${latest.y}) !important;
@@ -88,7 +89,7 @@ const Terminal = ({
                     className={css`
                         width: 100%;
                         height: ${
-                            !isFullHeight ? height : `calc(${height} - 127px)`
+                            !isFullHeight ? height : `calc(${height} - 34.72px)`
                         };
                         .react-unix-terminal-terminal-flexible-height-width-app-container {
                             border-bottom-left-radius: 4px;

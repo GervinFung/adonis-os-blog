@@ -10,6 +10,8 @@ type Post = Readonly<{
     title: string;
 }>;
 
+type AllPosts = ReadonlyArray<Omit<Post, 'content'>>;
+
 type PublishedPost = Pick<Post, 'content' | 'description' | 'title'> &
     Readonly<{
         timePublished: Date;
@@ -20,10 +22,14 @@ type InsertPost = Pick<
     'timeCreated' | 'content' | 'description' | 'title'
 >;
 
+type QueryInsertPost = Omit<InsertPost, 'timeCreated'>;
+
 type UpdatePost = Pick<
     Post,
     'timeUpdated' | 'content' | 'description' | 'title' | 'timePublished'
 >;
+
+type QueryUpdatePost = Pick<Post, 'id'> & Omit<UpdatePost, 'timeUpdated'>;
 
 type ReadPost = PublishedPost;
 
@@ -52,6 +58,15 @@ type ChangeHexIdToMongoId<
         _id: ObjectId;
     }>;
 
+type MongoIdToId<
+    T extends {
+        _id: ObjectId;
+    }
+> = Omit<T, '_id'> &
+    Readonly<{
+        id: ObjectId;
+    }>;
+
 export type {
     ShowPosts,
     InsertPost,
@@ -59,4 +74,8 @@ export type {
     ReadPost,
     ChangeIdToMongoId,
     ChangeHexIdToMongoId,
+    QueryUpdatePost,
+    QueryInsertPost,
+    MongoIdToId,
+    AllPosts,
 };

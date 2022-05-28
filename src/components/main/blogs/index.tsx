@@ -130,7 +130,7 @@ const Blogs = ({
                 }}
                 className={css`
                     position: absolute;
-                    left: 25%;
+                    left: ${isFullHeight ? '0' : '25%'};
                     z-index: ${zIndex};
                     width: ${width};
                     transform: translate(${latest.x}, ${latest.y}) !important;
