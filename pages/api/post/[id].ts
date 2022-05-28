@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-
 import mongodb from '../../../src/util/api/database/mongo';
-import { ReadPost } from '../../../src/common/type';
+import { ReadPost } from '../../../src/common/type/post';
 import cors from '../../../src/util/api/route/cors';
 import parseAsId from '../../../src/parser/blog/post/id';
 import { formObjectIdFromString } from '../../../src/util/api/database/mongo/util';

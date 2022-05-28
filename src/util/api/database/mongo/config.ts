@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import { parseAsEnv } from 'esbuild-env-parsing';
 
-const mongodbConfig = (() => {
+const mongodbConfig = () => {
     dotenv.config({
         path: `${process.cwd()}/.env${
             process.env.NODE_ENV === 'test' ? '.test' : ''
@@ -9,6 +9,8 @@ const mongodbConfig = (() => {
     });
 
     return {
+        port: process.env.MONGO_PORT,
+        srv: process.env.MONGO_SRV,
         dbName: parseAsEnv({
             env: process.env.MONGO_DB,
             name: 'MONGO_DB',
@@ -17,14 +19,12 @@ const mongodbConfig = (() => {
             env: process.env.MONGO_ADDRESS,
             name: 'MONGO_ADDRESS',
         }),
-        port: process.env.MONGO_PORT,
         collections: {
             post: parseAsEnv({
                 env: process.env.MONGO_COLLECTION_POST,
                 name: 'MONGO_COLLECTION_POST',
             }),
         },
-        srv: process.env.MONGO_SRV,
         auth: {
             user: parseAsEnv({
                 env: process.env.MONGO_USER,
@@ -36,6 +36,6 @@ const mongodbConfig = (() => {
             }),
         },
     } as const;
-})();
+};
 
 export default mongodbConfig;

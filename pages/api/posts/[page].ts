@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-
 import mongodb from '../../../src/util/api/database/mongo';
-import { ShowPosts } from '../../../src/common/type';
+import { ShowPosts } from '../../../src/common/type/post';
 import parseAsPage from '../../../src/parser/blog/posts/page';
 import cors from '../../../src/util/api/route/cors';
 

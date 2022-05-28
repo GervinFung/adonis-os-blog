@@ -1,15 +1,19 @@
-import { InsertOneResult, MongoClient, ObjectId, UpdateResult } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import {
+    AllPosts,
     ChangeHexIdToMongoId,
+    ChangeIdToMongoId,
     InsertPost,
+    QueryUpdatePost,
     ReadPost,
     ShowPosts,
     UpdatePost,
-} from '../../../../common/type';
+} from '../../../../common/type/post';
 import { postsPerPage } from '../../../const';
 import mongodbConfig from './config';
 
 const mongodb = (async () => {
+    const config = mongodbConfig();
     const client = (() => {
         const createURL = ({
             srv,
@@ -32,7 +36,7 @@ const mongodb = (async () => {
             port,
             address,
             srv,
-        } = mongodbConfig;
+        } = config;
         return new MongoClient(createURL({ srv, port }));
     })();
 
@@ -41,14 +45,13 @@ const mongodb = (async () => {
     const {
         dbName,
         collections: { post },
-    } = mongodbConfig;
+    } = config;
     const database = client.db(dbName);
 
     const getPost = () => database.collection(post);
 
     return {
         // testing purpose only
-        close: async () => await client.close(),
         clearCollections: async () => await getPost().deleteMany({}),
         bulkInsert: async (
             posts: ReadonlyArray<InsertPost>
@@ -66,6 +69,8 @@ const mongodb = (async () => {
             }
             return insertedIds;
         },
+        // general use
+        close: async () => await client.close(),
         totalPosts: async (): Promise<number> =>
             (
                 await getPost()
@@ -76,6 +81,24 @@ const mongodb = (async () => {
                     })
                     .toArray()
             ).length,
+        showAllPosts: async (): Promise<AllPosts> =>
+            (
+                await getPost()
+                    .find<ChangeIdToMongoId<AllPosts[0]>>(
+                        {},
+                        {
+                            projection: {
+                                _id: 1,
+                                title: 1,
+                                description: 1,
+                                timePublished: 1,
+                                timeUpdated: 1,
+                                timeCreated: 1,
+                            },
+                        }
+                    )
+                    .toArray()
+            ).map(({ _id, ...props }) => ({ id: _id, ...props })),
         showPosts: async ({
             skip,
         }: Readonly<{
@@ -195,6 +218,63 @@ const mongodb = (async () => {
                 throw new Error(`There are duplicated id for ${id}`);
             }
             return id;
+        },
+        publishPost: async (id: ObjectId) => {
+            const {
+                acknowledged,
+                matchedCount,
+                modifiedCount,
+                upsertedId,
+                upsertedCount,
+            } = await getPost().updateOne(
+                { _id: id },
+                {
+                    $set: {
+                        timePublished: new Date(),
+                        timeUpdated: new Date(),
+                    },
+                }
+            );
+            if (!acknowledged) {
+                throw new Error(`Publish post failed for ${id}`);
+            }
+            const isOnePostSoftDeleted =
+                matchedCount === modifiedCount &&
+                modifiedCount === 1 &&
+                upsertedCount === 0 &&
+                upsertedId === null;
+            if (!isOnePostSoftDeleted) {
+                throw new Error(`There are duplicated id for ${id}`);
+            }
+            return id;
+        },
+        showPostToBeUpdated: async (id: ObjectId): Promise<QueryUpdatePost> => {
+            const post = await getPost().findOne<
+                ChangeIdToMongoId<QueryUpdatePost>
+            >(
+                {
+                    _id: id,
+                },
+                {
+                    projection: {
+                        _id: 1,
+                        title: 1,
+                        description: 1,
+                        content: 1,
+                        timePublished: 1,
+                    },
+                }
+            );
+            if (!post) {
+                throw new Error(
+                    `Cannot find post with id of ${id.toHexString()}`
+                );
+            }
+            const { _id, ...props } = post;
+            return {
+                ...props,
+                id: _id,
+            };
         },
     };
 })();

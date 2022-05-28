@@ -12,10 +12,13 @@ next-env.d.ts
 
 # production
 build
+dist
+bin
 
 # misc
 .DS_Store
 *.pem
+fonts
 
 # test
 __test__
@@ -26,8 +29,11 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env.local
+.env
+.env.development
 .env.test
+.env.production
+.env.staging
 
 # vercel
 .vercel

@@ -51,6 +51,40 @@ test:
 	$(NODE_BIN)esbuild test/index.ts --bundle --minify --target=node16.3.1 --platform=node --outfile=__test__/index.test.js &&\
 		$(NODE_BIN)jest __test__
 
+## cli
+cli:
+	@read -p "What environment should this be carried out: " NODE_ENV &&\
+	echo "The environment is $${NODE_ENV}" &&\
+	node script/generate-env.js generate --env=$${NODE_ENV} &&\
+	$(NODE_BIN)esbuild post-operation/index.ts --bundle --minify --target=node16.3.1 --platform=node --outfile=dist/index.js\
+
+cli-read: cli
+	node dist/index.js read
+
+cli-insert: cli
+	node dist/index.js insert
+
+cli-insert-template: cli
+	node dist/index.js insert-template
+
+cli-publish: cli
+	@read -p "What is the id of the post need to be published: " id &&\
+	echo "The id of the post to be published is $${id}" &&\
+	node dist/index.js publish --id=$${id}
+
+cli-update: cli
+	node dist/index.js update
+
+cli-update-template: cli
+	@read -p "What is the id of the post need to generate its template: " id &&\
+	echo "The id of the post to with template generated is $${id}" &&\
+	node dist/index.js update-template --id=$${id}
+
+cli-delete: cli
+	@read -p "What is the id of the post need to be deleted: " id &&\
+	echo "The id of the post to be deleted is $${id}" &&\
+	node dist/index.js delete --id=$${id}
+
 ## format
 prettier=$(NODE_BIN)prettier
 prettify-src:
