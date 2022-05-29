@@ -97,6 +97,9 @@ const mongodb = (async () => {
                             },
                         }
                     )
+                    .sort({
+                        timePublished: -1,
+                    })
                     .toArray()
             ).map(({ _id, ...props }) => ({ id: _id, ...props })),
         showPosts: async ({
@@ -124,6 +127,9 @@ const mongodb = (async () => {
                     )
                     .limit(postsPerPage)
                     .skip(skip * postsPerPage)
+                    .sort({
+                        timePublished: -1,
+                    })
                     .toArray()
             ).map(({ _id, ...props }) => ({ id: _id.toHexString(), ...props })),
         showPost: async (id: ObjectId): Promise<ReadPost> => {

@@ -1,3 +1,7 @@
+// ref: https://stackoverflow.com/questions/39282873/object-hasownproperty-yields-the-eslint-no-prototype-builtins-error-how-to
+const hasOwnProperty = (obj: Object, prop: any) =>
+    Object.prototype.hasOwnProperty.call(obj, prop);
+
 const equal = (x: any, y: any) => {
     if (x === y) {
         return true;
@@ -12,12 +16,12 @@ const equal = (x: any, y: any) => {
     }
 
     for (const p in x) {
-        if (!x.hasOwnProperty(p) || x[p] === y[p]) {
+        if (!hasOwnProperty(x, p) || x[p] === y[p]) {
             continue;
         }
 
         if (
-            !y.hasOwnProperty(p) ||
+            !hasOwnProperty(y, p) ||
             typeof x[p] !== 'object' ||
             !equal(x[p], y[p])
         ) {
@@ -26,7 +30,7 @@ const equal = (x: any, y: any) => {
     }
 
     for (const p in y) {
-        if (y.hasOwnProperty(p) && !x.hasOwnProperty(p)) {
+        if (hasOwnProperty(y, p) && !hasOwnProperty(x, p)) {
             return false;
         }
     }

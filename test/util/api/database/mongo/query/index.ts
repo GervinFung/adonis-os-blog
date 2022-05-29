@@ -23,9 +23,11 @@ const testQuery = () => {
                 content: `Content ${index}`,
                 description: `Description ${index}`,
                 title: `Title ${index}`,
-                timeCreated: new Date('2022-05-12T14:53:49.165Z'),
-                timeUpdated: new Date('2022-05-12T14:53:49.165Z'),
-                timePublished: new Date('2022-05-12T14:53:49.165Z'),
+                timeCreated: new Date('2022-05-12T14:53:00.165Z'),
+                timeUpdated: new Date('2022-05-12T14:53:00.165Z'),
+                timePublished: new Date(
+                    `2022-05-12T14:53:${index >= 10 ? index : `0${index}`}.165Z`
+                ),
             };
             return index < 18
                 ? data

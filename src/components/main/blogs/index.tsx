@@ -130,6 +130,7 @@ const Blogs = ({
                 }}
                 className={css`
                     position: absolute;
+                    height: 100%;
                     left: ${isFullHeight ? '0' : '25%'};
                     z-index: ${zIndex};
                     width: ${width};
@@ -142,6 +143,7 @@ const Blogs = ({
                     className={css`
                         display: flex;
                         flex-flow: column;
+                        height: 100%;
                         width: 100%;
                         ${scrollbarStyle};
                     `}

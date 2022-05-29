@@ -16,6 +16,7 @@ install:
 
 ## dev
 next=$(NODE_BIN)next
+
 pre-dev:
 	rm -rf .next
 
@@ -35,11 +36,42 @@ start:
 	$(next) start
 
 ## lint
+eslint:
+	$(NODE_BIN)eslint $(folder)/** -f='stylish' --color
+
+lint-src:
+	make eslint folder=src
+
+lint-post-operation:
+	make eslint folder=post-operation
+
+lint-test:
+	make eslint folder=test
+
 lint:
-	$(next) lint
+	(trap 'kill 0' INT; make lint-src & make lint-test & make lint-post-operation)
+
+## format
+prettier=$(NODE_BIN)prettier
+
+prettify-src:
+	$(prettier) --$(type) src/
+
+prettify-post-operation:
+	$(prettier) --$(type) post-operation/
+
+prettify-test:
+	$(prettier) --$(type) test/
+
+format-check:
+	(trap 'kill 0' INT; make prettify-src type=check & make prettify-test type=check & make prettify-post-operation type=check)
+
+format:
+	(trap 'kill 0' INT; make prettify-src type=write & make prettify-test type=write & make prettify-post-operation type=write)
 
 ## typecheck
 tsc=$(NODE_BIN)tsc
+
 typecheck:
 	$(tsc) -p tsconfig.json $(arguments) 
 
@@ -84,20 +116,6 @@ cli-delete: cli
 	@read -p "What is the id of the post need to be deleted: " id &&\
 	echo "The id of the post to be deleted is $${id}" &&\
 	node dist/index.js delete --id=$${id}
-
-## format
-prettier=$(NODE_BIN)prettier
-prettify-src:
-	$(prettier) --$(type) src/
-
-prettify-test:
-	$(prettier) --$(type) test/
-
-format-check:
-	(trap 'kill 0' INT; make prettify-src type=check & make prettify-test type=check)
-
-format:
-	(trap 'kill 0' INT; make prettify-src type=write & make prettify-test type=write)
 
 ## mongo setup and installation
 # ref: https://www.digitalocean.com/community/tutorials/how-to-install-mongodb-on-ubuntu-20-04

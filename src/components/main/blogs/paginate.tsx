@@ -25,7 +25,7 @@ const Pagination = ({
         padding: 4px;
         display: grid;
         place-items: center;
-        margin: 8px;
+        margin: 0 8px;
         @media (max-width: 460px) {
             margin: 4px;
         }
@@ -85,7 +85,7 @@ const Pagination = ({
             <div
                 className={css`
                     width: 100%;
-                    padding: 36px 0 0 0;
+                    padding: 24px 0 12px 0;
                     display: flex;
                     justify-content: center;
                     align-items: center;

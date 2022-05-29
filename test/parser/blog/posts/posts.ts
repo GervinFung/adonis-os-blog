@@ -39,21 +39,23 @@ const testPostsParser = () => {
                 },
             ];
             expect(() =>
-                posts.parseAsPosts(dummyData.map(({ id, ...props }) => props))
-            ).toThrowError();
-            expect(() =>
                 posts.parseAsPosts(
-                    dummyData.map(({ description, ...props }) => props)
+                    dummyData.map(({ id: _, ...props }) => props)
                 )
             ).toThrowError();
             expect(() =>
                 posts.parseAsPosts(
-                    dummyData.map(({ title, ...props }) => props)
+                    dummyData.map(({ description: _, ...props }) => props)
                 )
             ).toThrowError();
             expect(() =>
                 posts.parseAsPosts(
-                    dummyData.map(({ timePublished, ...props }) => props)
+                    dummyData.map(({ title: _, ...props }) => props)
+                )
+            ).toThrowError();
+            expect(() =>
+                posts.parseAsPosts(
+                    dummyData.map(({ timePublished: _, ...props }) => props)
                 )
             ).toThrowError();
         });
