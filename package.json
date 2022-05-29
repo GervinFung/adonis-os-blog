@@ -3,12 +3,12 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "build": "make build && make clean-up"
+        "build": "make build && make clean-up",
+        "start": "make start"
     },
     "dependencies": {
         "@emotion/css": "^11.9.0",
         "@emotion/react": "^11.9.0",
-        "@emotion/styled": "^11.8.1",
         "axios": "^0.27.2",
         "cors": "^2.8.5",
         "granula-string": "^1.0.5",

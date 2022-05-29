@@ -20,7 +20,7 @@ const Draggable = ({
         //ref : https://lo-victoria.com/making-draggable-components-in-react to make it draggable
         <ReactDraggable
             defaultClassName={css`
-                height: fit-content;
+                height: 100%;
             `}
             onDrag={(_, { x, y }) => setPosition({ x, y })}
         >

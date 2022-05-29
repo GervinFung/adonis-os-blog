@@ -70,7 +70,6 @@ const Posts = ({
                 padding: 8px;
                 box-sizing: border-box;
                 display: grid;
-                grid-template-rows: 80% 20%;
                 overflow-y: auto;
                 overflow-x: hidden;
                 ${scrollbarStyle};
@@ -85,6 +84,7 @@ const Posts = ({
                     grid-template-columns: repeat(3, 1fr);
                     grid-template-rows: 1fr 1fr 1fr;
                     grid-gap: 36px;
+                    overflow-y: auto;
                 `}
             >
                 {posts.map(({ id, title, description, timePublished }) => (

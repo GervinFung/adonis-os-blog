@@ -76,7 +76,7 @@ const Terminal = ({
                 }}
                 className={css`
                     position: absolute;
-                    height: 100%;
+                    height: ${isFullHeight ? '100%' : 'fit-content'};
                     left: ${isFullHeight ? '0' : '25%'};
                     z-index: ${zIndex};
                     width: ${width};
