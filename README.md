@@ -12,7 +12,7 @@ A blog post that simulate an OS and has 3 apps
 
 Of course it doesn't simulate a real OS, just that I chose to develop my own blog in a different way.
 
-Since I believe that a blog can be used to share personal view or information on various topics in an informal way, it should be designed and tailored as such, instead of making it similar to other blog posts, in other words, every blogger should have their own unique design of their blog
+Since I believe that a blog can be used to share personal view or information on various topics in an informal way, it should be designed and tailored as such, instead of making it similar to other blog posts. In other words, every blogger should have their own unique design of their blog
 
 Hence by doing so I allowed readers to take a glimpse of my software world (Linux and Terminal) and read blog at the same time.
 
@@ -72,8 +72,12 @@ _*Make sure you have `yarn` and `make` available in your system*_
 #### Development and Testing
 
 1. Refer to `.env.example` which is an example file for you to know what key-value pairs are needed to develop this project
-2. Then, create `.env.development` and `.env.test` file that will be used for development and testing. Then copy the key-value pairs to it and then add the values
-3. Also, you can create `.env.staging` and `.env.production` file for deployment if you want to
+2. Then, create `.env.development` and `.env.test` file that will be used for development and testing respectively. After that, copy the key-value pairs to it and then add the values
+
+#### Staging and Production
+
+1. Similarly, refer to `.env.deployment.example` to know what key-value pairs are needed to deploy this project
+2. Then, create `.env.staging` and `.env.production` file and copy the key-value pairs to it and then add the values
 
 #### Make Commands
 
@@ -82,6 +86,7 @@ _*Below are the listed commands that you can use to build/develop/test this app*
 | Command                  | Usage                                                                                            |
 | ------------------------ | ------------------------------------------------------------------------------------------------ |
 | make dev                 | Start development                                                                                |
+| make start               | Run the built and bundled production code                                                        |
 | make install             | Install all dependencies                                                                         |
 | make test                | Run all test code                                                                                |
 | make build               | Bundle and build the app                                                                         |
