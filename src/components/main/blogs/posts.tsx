@@ -46,21 +46,21 @@ const Posts = ({
         }
     }, []);
 
-    // React.useEffect(() => {
-    //     axios
-    //         .get(`/api/${val.posts}/${page}`)
-    //         .then(({ data }) =>
-    //             setState((prev) => {
-    //                 const { posts } = blogParser();
-    //                 return {
-    //                     ...prev,
-    //                     posts: posts.parseAsPosts(data.posts),
-    //                     totalPosts: posts.parseAsTotalPosts(data.totalPosts),
-    //                 };
-    //             })
-    //         )
-    //         .catch(alert);
-    // }, [page]);
+    React.useEffect(() => {
+        axios
+            .get(`/api/${val.posts}/${page}`)
+            .then(({ data }) =>
+                setState((prev) => {
+                    const { posts } = blogParser();
+                    return {
+                        ...prev,
+                        posts: posts.parseAsPosts(data.posts),
+                        totalPosts: posts.parseAsTotalPosts(data.totalPosts),
+                    };
+                })
+            )
+            .catch(alert);
+    }, [page]);
 
     return (
         <div
