@@ -29,7 +29,7 @@ build:
 
 ## clean-up:
 clean-up:
-	rm -rf src test node_modules script sql .github .git server
+	rm -rf src test script .github .git post post-operation public pages docs
 
 ## start
 start:
