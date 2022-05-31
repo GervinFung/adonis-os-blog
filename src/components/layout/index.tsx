@@ -51,7 +51,7 @@ const Layout = ({
                 display: flex;
                 justify-content: space-between;
                 flex-direction: column;
-                background-image: url('img/background/background-${backgroundImageIndex}.webp');
+                background-image: url('images/background/background-${backgroundImageIndex}.webp');
                 background-position: center;
                 background-size: cover;
                 background-repeat: no-repeat;
@@ -65,7 +65,7 @@ const Layout = ({
                     name="viewport"
                     content="initial-scale=1.0, width=device-width"
                 />
-                <link rel="shortcut icon" href="img/icon/favicon.ico" />
+                <link rel="shortcut icon" href="images/icon/favicon.ico" />
             </Head>
             <JetbrainMono />
             <TopBar />
