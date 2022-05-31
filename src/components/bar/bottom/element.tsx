@@ -16,7 +16,7 @@ const Icon = ({
         `}
     >
         <img
-            src={`img/bar/${imgName}.webp`}
+            src={`images/bar/${imgName}.webp`}
             alt={imgName}
             className={css`
                 width: 35px;

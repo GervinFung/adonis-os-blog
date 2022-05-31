@@ -29,7 +29,7 @@ build:
 
 ## clean-up:
 clean-up:
-	rm -rf src test script .github .git post post-operation public pages docs
+	rm -rf src test script .github .git post post-operation pages docs
 
 ## start
 start:
