@@ -1,4 +1,4 @@
-import mongodb from '../../../../../src/util/api/database/mongo';
+import promiseifyMongoDb from '../../../src/database/mongo';
 import testMutation from './mutation';
 import testQuery from './query';
 
@@ -7,8 +7,7 @@ const testMongo = () =>
         testQuery();
         testMutation();
         afterAll(async () => {
-            const mongo = await mongodb;
-            await mongo.close();
+            (await promiseifyMongoDb).close();
         });
     });
 

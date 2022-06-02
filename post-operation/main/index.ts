@@ -1,7 +1,7 @@
 import commandLine from '../command';
 import fs from 'fs';
 import { ObjectId } from 'mongodb';
-import mongodb from '../../src/util/api/database/mongo';
+import promifisyMongoDb from '../../src/database/mongo';
 import postOpetaionParser from '../parser/post';
 import { QueryUpdatePost } from '../../src/common/type/post';
 
@@ -61,8 +61,8 @@ const main = (args: ReadonlyArray<string>) => {
     commandLine().yargs({
         args,
         read: async () => {
-            const mongo = await mongodb;
-            const posts = await mongo.showAllPosts();
+            const mongo = await promifisyMongoDb;
+            const posts = await mongo.postCollection.showAllPosts();
             const directory = 'post/read';
             mkdir(directory);
             const path = `${directory}/posts.json`;
@@ -75,8 +75,8 @@ const main = (args: ReadonlyArray<string>) => {
         },
         publish: async (argv) => {
             const id = new ObjectId(argv.id);
-            const mongo = await mongodb;
-            const publishedId = await mongo.publishPost(id);
+            const mongo = await promifisyMongoDb;
+            const publishedId = await mongo.postCollection.publishOne(id);
             if (publishedId.toHexString() !== id.toHexString()) {
                 throw new Error(`Publish failed for ${id}`);
             }
@@ -85,8 +85,8 @@ const main = (args: ReadonlyArray<string>) => {
         },
         softDelete: async (argv) => {
             const id = new ObjectId(argv.id);
-            const mongo = await mongodb;
-            const deletedId = await mongo.deletePost(id);
+            const mongo = await promifisyMongoDb;
+            const deletedId = await mongo.postCollection.deleteOne(id);
             if (deletedId.toHexString() !== id.toHexString()) {
                 throw new Error(`Delete failed for ${id}`);
             }
@@ -115,8 +115,8 @@ const main = (args: ReadonlyArray<string>) => {
                     const postMarkdown = await readFileContent(
                         genMarkdownFile(insert)
                     );
-                    const mongo = await mongodb;
-                    const insertedId = await mongo.insertPost({
+                    const mongo = await promifisyMongoDb;
+                    const insertedId = await mongo.postCollection.insertOne({
                         ...postJson,
                         content: postMarkdown,
                         timeCreated: new Date(),
@@ -133,13 +133,14 @@ const main = (args: ReadonlyArray<string>) => {
             const update = 'update';
             return {
                 template: async (argv) => {
-                    const mongo = await mongodb;
-                    const post = await mongo.showPostToBeUpdated(
-                        new ObjectId(argv.id)
-                    );
+                    const mongo = await promifisyMongoDb;
+                    const postToBeUpdated =
+                        await mongo.postCollection.showPostToBeUpdated(
+                            new ObjectId(argv.id)
+                        );
                     mkdir(`post/${update}`);
-                    writeMarkdownFile(post.content, update);
-                    writeJsonFile(post, update);
+                    writeMarkdownFile(postToBeUpdated.content, update);
+                    writeJsonFile(postToBeUpdated, update);
                 },
                 action: async () => {
                     const postJson = parseAsUpdatePost(
@@ -149,8 +150,8 @@ const main = (args: ReadonlyArray<string>) => {
                     const postMarkdown = await readFileContent(
                         genMarkdownFile(update)
                     );
-                    const mongo = await mongodb;
-                    const updatedId = await mongo.updatePost(id, {
+                    const mongo = await promifisyMongoDb;
+                    const updatedId = await mongo.postCollection.updateOne(id, {
                         ...postJson,
                         content: postMarkdown,
                         timeUpdated: new Date(),

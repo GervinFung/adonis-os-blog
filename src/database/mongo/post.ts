@@ -1,4 +1,4 @@
-import { MongoClient, ObjectId } from 'mongodb';
+import { Collection, ObjectId, Document } from 'mongodb';
 import {
     AllPosts,
     ChangeHexIdToMongoId,
@@ -8,51 +8,48 @@ import {
     ReadPost,
     ShowPosts,
     UpdatePost,
-} from '../../../../common/type/post';
-import { postsPerPage } from '../../../const';
-import mongodbConfig from './config';
+} from '../../common/type/post';
+import { postsPerPage } from '../../util/const';
 
-const mongodb = (async () => {
-    const config = mongodbConfig();
-    const client = (() => {
-        const createURL = ({
-            srv,
-            port,
-        }: Readonly<{
-            srv: string | undefined;
-            port: string | undefined;
-        }>) => {
-            if (srv) {
-                return `mongodb${srv}://${user}:${password}@${address}/${dbName}?authSource=admin&retryWrites=true&w=majority`;
-            }
-            if (port) {
-                return `mongodb://${user}:${password}@${address}:${port}/${dbName}?authSource=admin&retryWrites=true&w=majority`;
-            }
-            throw new Error('Port or SRV are not defined');
-        };
-        const {
-            auth: { user, password },
-            dbName,
-            port,
-            address,
-            srv,
-        } = config;
-        return new MongoClient(createURL({ srv, port }));
-    })();
-
-    await client.connect();
-
-    const {
-        dbName,
-        collections: { post },
-    } = config;
-    const database = client.db(dbName);
-
-    const getPost = () => database.collection(post);
+const postCollection = (getPost: () => Collection<Document>) => {
+    const showMany = async ({
+        skip,
+        isIncludeUnpublished,
+    }: Readonly<{
+        skip: number;
+        isIncludeUnpublished: boolean;
+    }>): Promise<ShowPosts> =>
+        (
+            await getPost()
+                .find<ChangeHexIdToMongoId<ShowPosts[0]>>(
+                    isIncludeUnpublished
+                        ? {}
+                        : {
+                              //ref: https://www.mongodb.com/docs/manual/reference/operator/query/
+                              timePublished: {
+                                  $ne: undefined,
+                              },
+                          },
+                    {
+                        projection: {
+                            _id: 1,
+                            title: 1,
+                            description: 1,
+                            timePublished: 1,
+                        },
+                    }
+                )
+                .limit(postsPerPage)
+                .skip(skip * postsPerPage)
+                .sort({
+                    timePublished: -1,
+                })
+                .toArray()
+        ).map(({ _id, ...props }) => ({ id: _id.toHexString(), ...props }));
 
     return {
         // testing purpose only
-        clearCollections: async () => await getPost().deleteMany({}),
+        clear: async () => await getPost().deleteMany({}),
         bulkInsert: async (
             posts: ReadonlyArray<InsertPost>
         ): Promise<
@@ -70,7 +67,6 @@ const mongodb = (async () => {
             return insertedIds;
         },
         // general use
-        close: async () => await client.close(),
         totalPosts: async (): Promise<number> =>
             (
                 await getPost()
@@ -102,37 +98,19 @@ const mongodb = (async () => {
                     })
                     .toArray()
             ).map(({ _id, ...props }) => ({ id: _id, ...props })),
-        showPosts: async ({
+        showManyPublishedOnly: async ({
             skip,
         }: Readonly<{
             skip: number;
         }>): Promise<ShowPosts> =>
-            (
-                await getPost()
-                    .find<ChangeHexIdToMongoId<ShowPosts[0]>>(
-                        {
-                            //ref: https://www.mongodb.com/docs/manual/reference/operator/query/
-                            timePublished: {
-                                $ne: undefined,
-                            },
-                        },
-                        {
-                            projection: {
-                                _id: 1,
-                                title: 1,
-                                description: 1,
-                                timePublished: 1,
-                            },
-                        }
-                    )
-                    .limit(postsPerPage)
-                    .skip(skip * postsPerPage)
-                    .sort({
-                        timePublished: -1,
-                    })
-                    .toArray()
-            ).map(({ _id, ...props }) => ({ id: _id.toHexString(), ...props })),
-        showPost: async (id: ObjectId): Promise<ReadPost> => {
+            await showMany({ skip, isIncludeUnpublished: false }),
+        showManyWithUnpublished: async ({
+            skip,
+        }: Readonly<{
+            skip: number;
+        }>): Promise<ShowPosts> =>
+            await showMany({ skip, isIncludeUnpublished: true }),
+        showOne: async (id: ObjectId): Promise<ReadPost> => {
             const post = await getPost().findOne<ReadPost>(
                 {
                     _id: id,
@@ -157,7 +135,7 @@ const mongodb = (async () => {
             }
             return post;
         },
-        insertPost: async (post: InsertPost): Promise<ObjectId> => {
+        insertOne: async (post: InsertPost): Promise<ObjectId> => {
             const { acknowledged, insertedId } = await getPost().insertOne(
                 post
             );
@@ -166,7 +144,7 @@ const mongodb = (async () => {
             }
             return insertedId;
         },
-        deletePost: async (id: ObjectId): Promise<ObjectId> => {
+        deleteOne: async (id: ObjectId): Promise<ObjectId> => {
             const {
                 acknowledged,
                 matchedCount,
@@ -194,7 +172,7 @@ const mongodb = (async () => {
             }
             return id;
         },
-        updatePost: async (
+        updateOne: async (
             id: ObjectId,
             post: UpdatePost
         ): Promise<ObjectId> => {
@@ -225,7 +203,7 @@ const mongodb = (async () => {
             }
             return id;
         },
-        publishPost: async (id: ObjectId) => {
+        publishOne: async (id: ObjectId) => {
             const {
                 acknowledged,
                 matchedCount,
@@ -282,7 +260,7 @@ const mongodb = (async () => {
                 id: _id,
             };
         },
-    };
-})();
+    } as const;
+};
 
-export default mongodb;
+export default postCollection;

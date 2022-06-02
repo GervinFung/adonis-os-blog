@@ -1,10 +1,10 @@
 import { ObjectId } from 'mongodb';
 import { DummyData } from '.';
-import mongodb from '../../../../../../src/util/api/database/mongo';
+import promisifyMongoDb from '../../../../src/database/mongo';
 
 const testPostQuery = (dummyData: DummyData) =>
     describe('Post', () => {
-        const post = (index: number) => {
+        const dummyPostFromIndex = (index: number) => {
             const contentIndex = `Content ${index}`;
             const postOne = dummyData.find(
                 (data) => data.content === contentIndex
@@ -22,15 +22,19 @@ const testPostQuery = (dummyData: DummyData) =>
             } as const;
         };
         it('should throw error for querying post with non-existent id', async () => {
-            const mongo = await mongodb;
-            expect(mongo.showPost(new ObjectId())).rejects.toThrowError();
+            const { postCollection } = await promisifyMongoDb;
+            expect(
+                postCollection.showOne(new ObjectId())
+            ).rejects.toThrowError();
         });
         it('should throw error for post with id and undefined published time', async () => {
-            const mongo = await mongodb;
-            expect(mongo.showPost(post(19)._id)).rejects.toThrowError();
+            const { postCollection } = await promisifyMongoDb;
+            expect(
+                postCollection.showOne(dummyPostFromIndex(19)._id)
+            ).rejects.toThrowError();
         });
         it('should query post with id', async () => {
-            const mongo = await mongodb;
+            const { postCollection } = await promisifyMongoDb;
             const removeId = ({
                 content,
                 description,
@@ -48,12 +52,12 @@ const testPostQuery = (dummyData: DummyData) =>
                 title,
                 timePublished,
             });
-            const postOne = post(1);
-            expect(await mongo.showPost(postOne._id)).toStrictEqual(
+            const postOne = dummyPostFromIndex(1);
+            expect(await postCollection.showOne(postOne._id)).toStrictEqual(
                 removeId(postOne)
             );
-            const postTwo = post(2);
-            expect(await mongo.showPost(postTwo._id)).toStrictEqual(
+            const postTwo = dummyPostFromIndex(2);
+            expect(await postCollection.showOne(postTwo._id)).toStrictEqual(
                 removeId(postTwo)
             );
         });

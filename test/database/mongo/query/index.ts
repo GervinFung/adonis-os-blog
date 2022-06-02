@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb';
-import mongodb from '../../../../../../src/util/api/database/mongo';
+import promisifyMongoDb from '../../../../src/database/mongo';
 import testPostQuery from './post';
 import testPostsQuery from './posts';
 
@@ -37,9 +37,9 @@ const testQuery = () => {
                   };
         });
         beforeAll(async () => {
-            const mongo = await mongodb;
-            await mongo.clearCollections();
-            await mongo.bulkInsert(dummyData);
+            const { postCollection } = await promisifyMongoDb;
+            await postCollection.clear();
+            await postCollection.bulkInsert(dummyData);
         });
         testPostsQuery(dummyData);
         testPostQuery(dummyData);
