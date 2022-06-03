@@ -1,5 +1,4 @@
-import { historyParser } from '../../../src/parser';
-import { maxLength } from '../../../src/parser/history/stack';
+import historyParser, { maxLength } from '../../../src/parser/history';
 
 const testStackParser = () => {
     describe('Stack Parser', () => {

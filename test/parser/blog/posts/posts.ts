@@ -1,8 +1,8 @@
-import { blogParser } from '../../../../src/parser';
+import blogParser from '../../../../src/parser/blog';
 
 const testPostsParser = () => {
     describe('Posts Parser', () => {
-        const { posts } = blogParser();
+        const { paginated } = blogParser();
         it('should parse valid posts', () => {
             const dummyData = [
                 {
@@ -18,7 +18,7 @@ const testPostsParser = () => {
                     timePublished: '2022-05-22T14:28:50.047Z',
                 },
             ];
-            expect(posts.parseAsPosts(dummyData)).toStrictEqual(
+            expect(paginated.parseAsPosts(dummyData)).toStrictEqual(
                 dummyData.map((data) => ({
                     ...data,
                     timePublished: new Date(data.timePublished),
@@ -26,8 +26,8 @@ const testPostsParser = () => {
             );
         });
         it('should fail to parse invalid posts and return empty posts', () => {
-            expect(posts.parseAsPosts('123')).toStrictEqual([]);
-            expect(posts.parseAsPosts({ wifi: '123' })).toStrictEqual([]);
+            expect(paginated.parseAsPosts('123')).toStrictEqual([]);
+            expect(paginated.parseAsPosts({ wifi: '123' })).toStrictEqual([]);
         });
         it('should fail to parse invalid properties of posts and throw error', () => {
             const dummyData = [
@@ -39,22 +39,22 @@ const testPostsParser = () => {
                 },
             ];
             expect(() =>
-                posts.parseAsPosts(
+                paginated.parseAsPosts(
                     dummyData.map(({ id: _, ...props }) => props)
                 )
             ).toThrowError();
             expect(() =>
-                posts.parseAsPosts(
+                paginated.parseAsPosts(
                     dummyData.map(({ description: _, ...props }) => props)
                 )
             ).toThrowError();
             expect(() =>
-                posts.parseAsPosts(
+                paginated.parseAsPosts(
                     dummyData.map(({ title: _, ...props }) => props)
                 )
             ).toThrowError();
             expect(() =>
-                posts.parseAsPosts(
+                paginated.parseAsPosts(
                     dummyData.map(({ timePublished: _, ...props }) => props)
                 )
             ).toThrowError();

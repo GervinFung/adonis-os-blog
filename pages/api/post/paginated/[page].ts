@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import promisifyMongoDb from '../../../../src/database/mongo';
 import { ShowPosts } from '../../../../src/common/type/post';
-import parseAsPage from '../../../../src/parser/blog/posts/page';
+import blogPropsParser from '../../../../src/parser/blog';
 import cors from '../../../../src/util/api/route/cors';
 
 type Response = Readonly<{
@@ -12,7 +12,8 @@ type Response = Readonly<{
 const index = async (req: NextApiRequest, res: NextApiResponse<Response>) => {
     await cors<Response>()(req, res);
     const { query } = req;
-    const page = parseAsPage(query.page);
+    const { paginated } = blogPropsParser();
+    const page = paginated.parseAsPage(query.page);
     const { postCollection } = await promisifyMongoDb;
     res.status(200).json({
         posts: await postCollection.showManyPublishedOnly({

@@ -4,7 +4,7 @@ import Pagination from './paginate';
 import { Item } from '../../../history';
 import { api, postsPerPage } from '../../../util/const';
 import { ShowPosts } from '../../../common/type/post';
-import { blogParser } from '../../../parser';
+import blogParser from '../../../parser/blog';
 import adonisAxios from '../../../axios';
 import { ToastError } from '../toasify';
 
@@ -52,11 +52,13 @@ const Posts = ({
             .get(`${api.post.paginated}/${page}`)
             .then(({ data }) =>
                 setState((prev) => {
-                    const { posts } = blogParser();
+                    const { paginated } = blogParser();
                     return {
                         ...prev,
-                        posts: posts.parseAsPosts(data.posts),
-                        totalPosts: posts.parseAsTotalPosts(data.totalPosts),
+                        posts: paginated.parseAsPosts(data.posts),
+                        totalPosts: paginated.parseAsTotalPosts(
+                            data.totalPosts
+                        ),
                     };
                 })
             )

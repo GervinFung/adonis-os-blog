@@ -1,8 +1,8 @@
-import { blogParser } from '../../../../src/parser';
+import blogParser from '../../../../src/parser/blog';
 
 const testPostParser = () => {
     describe('Post Parser', () => {
-        const { post } = blogParser();
+        const { one } = blogParser();
         const dummyData = {
             title: 'Title',
             description: 'Description',
@@ -10,23 +10,23 @@ const testPostParser = () => {
             timePublished: '2022-05-24T04:04:02.734Z',
         };
         it('should parse valid post', () => {
-            expect(post.parseAsPost(dummyData)).toStrictEqual({
+            expect(one.parseAsPost(dummyData)).toStrictEqual({
                 ...dummyData,
                 timePublished: new Date(dummyData.timePublished),
             });
         });
         it('should fail to parse invalid post and throw error', () => {
             expect(() =>
-                post.parseAsPost({ ...dummyData, title: undefined })
+                one.parseAsPost({ ...dummyData, title: undefined })
             ).toThrowError();
             expect(() =>
-                post.parseAsPost({ ...dummyData, description: undefined })
+                one.parseAsPost({ ...dummyData, description: undefined })
             ).toThrowError();
             expect(() =>
-                post.parseAsPost({ ...dummyData, content: undefined })
+                one.parseAsPost({ ...dummyData, content: undefined })
             ).toThrowError();
             expect(() =>
-                post.parseAsPost({ ...dummyData, timePublished: undefined })
+                one.parseAsPost({ ...dummyData, timePublished: undefined })
             ).toThrowError();
         });
     });

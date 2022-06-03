@@ -1,17 +1,17 @@
-import { blogParser } from '../../../../src/parser';
+import blogParser from '../../../../src/parser/blog';
 
 const testIdParser = () => {
     describe('Id Parser', () => {
-        const { post } = blogParser();
+        const { one } = blogParser();
         it('should parse valid id', () => {
             const idOne = '507f191e810c19729de860ea';
-            expect(post.parseAsId(idOne)).toStrictEqual(idOne);
+            expect(one.parseAsId(idOne)).toStrictEqual(idOne);
             const idTwo = 'hey';
-            expect(post.parseAsId(idTwo)).toStrictEqual(idTwo);
+            expect(one.parseAsId(idTwo)).toStrictEqual(idTwo);
         });
         it('should fail to parse invalid id and throw error', () => {
-            expect(() => post.parseAsId(undefined)).toThrowError();
-            expect(() => post.parseAsId(123)).toThrowError();
+            expect(() => one.parseAsId(undefined)).toThrowError();
+            expect(() => one.parseAsId(123)).toThrowError();
         });
     });
 };

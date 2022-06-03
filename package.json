@@ -8,7 +8,6 @@
     },
     "dependencies": {
         "@emotion/css": "^11.9.0",
-        "@emotion/react": "^11.9.0",
         "axios": "^0.27.2",
         "cors": "^2.8.5",
         "firebase": "^9.8.2",
@@ -27,8 +26,7 @@
         "rehype-react": "^7.1.1",
         "remark-parse": "^10.0.1",
         "remark-rehype": "^10.1.0",
-        "unified": "^10.1.2",
-        "yargs": "^17.5.1"
+        "unified": "^10.1.2"
     },
     "devDependencies": {
         "@types/cors": "^2.8.12",

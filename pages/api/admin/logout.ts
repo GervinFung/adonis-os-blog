@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import cors from '../../../src/util/api/route/cors';
 import auth from '../../../src/auth/api';
-import parser from '../../../src/parser/admin/auth';
+import adminAuthParser from '../../../src/parser/admin/auth';
 import promisifyMongoDb from '../../../src/database/mongo';
 import { Aud } from '../../../src/common/type/auth-record';
 
@@ -12,7 +12,7 @@ type Response = Readonly<{
 const index = async (req: NextApiRequest, res: NextApiResponse<Response>) => {
     await cors<Response>()(req, res);
     const { body } = req;
-    const token = parser.parseAsToken(body.token);
+    const token = adminAuthParser().parseAsToken(body.token);
 
     if (!token) {
         res.status(400).json({

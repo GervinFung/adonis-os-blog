@@ -1,4 +1,4 @@
-import { historyParser } from '../../../src/parser';
+import historyParser from '../../../src/parser/history';
 
 const testIndexNavigationParser = () => {
     describe('Index Navigation Parser', () => {
