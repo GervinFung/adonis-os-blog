@@ -10,6 +10,7 @@ import {
     UpdatePost,
 } from '../../common/type/post';
 import { postsPerPage } from '../../util/const';
+import { assertUpdateOneComplete } from './util';
 
 const postCollection = (getPost: () => Collection<Document>) => {
     const showMany = async ({
@@ -140,98 +141,56 @@ const postCollection = (getPost: () => Collection<Document>) => {
                 post
             );
             if (!acknowledged) {
-                throw new Error(`Insert post failed`);
+                throw new Error(`Insert post ${post} failed`);
             }
             return insertedId;
         },
-        deleteOne: async (id: ObjectId): Promise<ObjectId> => {
-            const {
-                acknowledged,
-                matchedCount,
-                modifiedCount,
-                upsertedId,
-                upsertedCount,
-            } = await getPost().updateOne(
-                { _id: id },
+        deleteOne: async (id: ObjectId): Promise<ObjectId> =>
+            assertUpdateOneComplete(
+                await getPost().updateOne(
+                    { _id: id },
+                    {
+                        $set: {
+                            timePublished: undefined,
+                        },
+                    }
+                ),
                 {
-                    $set: {
-                        timePublished: undefined,
-                    },
+                    debugInfo: id,
+                    infoToReturn: id,
                 }
-            );
-            if (!acknowledged) {
-                throw new Error(`Delete post failed for ${id}`);
-            }
-            const isOnePostSoftDeleted =
-                matchedCount === modifiedCount &&
-                modifiedCount === 1 &&
-                upsertedCount === 0 &&
-                upsertedId === null;
-            if (!isOnePostSoftDeleted) {
-                throw new Error(`There are duplicated id for ${id}`);
-            }
-            return id;
-        },
-        updateOne: async (
-            id: ObjectId,
-            post: UpdatePost
-        ): Promise<ObjectId> => {
-            const {
-                acknowledged,
-                matchedCount,
-                modifiedCount,
-                upsertedId,
-                upsertedCount,
-            } = await getPost().updateOne(
-                { _id: id },
+            ),
+        updateOne: async (id: ObjectId, post: UpdatePost): Promise<ObjectId> =>
+            assertUpdateOneComplete(
+                await getPost().updateOne(
+                    { _id: id },
+                    {
+                        $set: {
+                            ...post,
+                        },
+                    }
+                ),
                 {
-                    $set: {
-                        ...post,
-                    },
+                    debugInfo: id,
+                    infoToReturn: id,
                 }
-            );
-            if (!acknowledged) {
-                throw new Error(`Update post failed for ${id}`);
-            }
-            const isOnePostSoftDeleted =
-                matchedCount === modifiedCount &&
-                modifiedCount === 1 &&
-                upsertedCount === 0 &&
-                upsertedId === null;
-            if (!isOnePostSoftDeleted) {
-                throw new Error(`There are duplicated id for ${id}`);
-            }
-            return id;
-        },
-        publishOne: async (id: ObjectId) => {
-            const {
-                acknowledged,
-                matchedCount,
-                modifiedCount,
-                upsertedId,
-                upsertedCount,
-            } = await getPost().updateOne(
-                { _id: id },
+            ),
+        publishOne: async (id: ObjectId) =>
+            assertUpdateOneComplete(
+                await getPost().updateOne(
+                    { _id: id },
+                    {
+                        $set: {
+                            timePublished: new Date(),
+                            timeUpdated: new Date(),
+                        },
+                    }
+                ),
                 {
-                    $set: {
-                        timePublished: new Date(),
-                        timeUpdated: new Date(),
-                    },
+                    debugInfo: id,
+                    infoToReturn: id,
                 }
-            );
-            if (!acknowledged) {
-                throw new Error(`Publish post failed for ${id}`);
-            }
-            const isOnePostSoftDeleted =
-                matchedCount === modifiedCount &&
-                modifiedCount === 1 &&
-                upsertedCount === 0 &&
-                upsertedId === null;
-            if (!isOnePostSoftDeleted) {
-                throw new Error(`There are duplicated id for ${id}`);
-            }
-            return id;
-        },
+            ),
         showPostToBeUpdated: async (id: ObjectId): Promise<QueryUpdatePost> => {
             const post = await getPost().findOne<
                 ChangeIdToMongoId<QueryUpdatePost>

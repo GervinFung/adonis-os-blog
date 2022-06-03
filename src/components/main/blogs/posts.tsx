@@ -2,10 +2,11 @@ import * as React from 'react';
 import { css } from '@emotion/css';
 import Pagination from './paginate';
 import { Item } from '../../../history';
-import axios from 'axios';
-import { postsPerPage, val } from '../../../util/const';
+import { api, postsPerPage } from '../../../util/const';
 import { ShowPosts } from '../../../common/type/post';
 import { blogParser } from '../../../parser';
+import adonisAxios from '../../../axios';
+import { ToastError } from '../toasify';
 
 const Posts = ({
     setPostId,
@@ -33,9 +34,9 @@ const Posts = ({
             return 1;
         }
         switch (item.type) {
-            case 'post':
+            case 'one':
                 throw new Error('item cannot be post');
-            case 'posts':
+            case 'paginated':
                 return item.page;
         }
     })();
@@ -47,8 +48,8 @@ const Posts = ({
     }, []);
 
     React.useEffect(() => {
-        axios
-            .get(`/api/${val.posts}/${page}`)
+        adonisAxios
+            .get(`${api.post.paginated}/${page}`)
             .then(({ data }) =>
                 setState((prev) => {
                     const { posts } = blogParser();
@@ -59,7 +60,7 @@ const Posts = ({
                     };
                 })
             )
-            .catch(alert);
+            .catch(ToastError);
     }, [page]);
 
     return (
@@ -70,7 +71,6 @@ const Posts = ({
                 padding: 8px;
                 box-sizing: border-box;
                 display: grid;
-                grid-template-rows: 80% 20%;
                 overflow-y: auto;
                 overflow-x: hidden;
                 ${scrollbarStyle};

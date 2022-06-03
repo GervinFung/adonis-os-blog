@@ -203,7 +203,7 @@ const Blogs = ({
                         {(() => {
                             const current = history.current();
                             switch (current?.type) {
-                                case 'post': {
+                                case 'one': {
                                     return (
                                         <Post
                                             id={current.id}
@@ -212,7 +212,7 @@ const Blogs = ({
                                     );
                                 }
                                 case undefined:
-                                case 'posts':
+                                case 'paginated':
                                     return (
                                         <Posts
                                             scrollbarStyle={scrollbarStyle}
@@ -227,7 +227,7 @@ const Blogs = ({
                                                     .find(
                                                         (item) =>
                                                             item.type ===
-                                                            'posts'
+                                                            'paginated'
                                                     ) ??
                                                 1
                                             }
@@ -235,7 +235,7 @@ const Blogs = ({
                                                 setState((prev) => ({
                                                     ...prev,
                                                     history: history.push({
-                                                        type: 'posts',
+                                                        type: 'paginated',
                                                         page,
                                                     }),
                                                 }))
@@ -244,7 +244,7 @@ const Blogs = ({
                                                 setState((prev) => ({
                                                     ...prev,
                                                     history: history.push({
-                                                        type: 'post',
+                                                        type: 'one',
                                                         id,
                                                     }),
                                                 }))

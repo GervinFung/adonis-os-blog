@@ -1,10 +1,10 @@
 type Item = Readonly<
     | {
-          type: 'posts';
+          type: 'paginated';
           page: number;
       }
     | {
-          type: 'post';
+          type: 'one';
           id: string;
       }
 >;

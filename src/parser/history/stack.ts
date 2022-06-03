@@ -14,14 +14,17 @@ const parseAsStack = (json: string | undefined): Stack => {
         return [];
     }
     const stack = parseAsReadonlyArray(JSON.parse(json), (item) => {
+        const { paginated, one } = val.post;
         const type = parseAsCustomType<Item['type']>(
             item.type,
-            (type) => type === val.posts || type === val.post
+            (type) =>
+                type === paginated.replace('post/', '') ||
+                type === one.replace('post/', '')
         ).orElseGetUndefined();
         switch (type) {
             case undefined:
                 return [];
-            case 'post': {
+            case 'one': {
                 const id = parseAsString(item.id).orElseGetUndefined();
                 return !id
                     ? []
@@ -32,7 +35,7 @@ const parseAsStack = (json: string | undefined): Stack => {
                           } as const,
                       ];
             }
-            case 'posts': {
+            case 'paginated': {
                 const page = parseAsNumber(item.page).orElseGetUndefined();
                 return !page
                     ? []

@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import promisifyMongoDb from '../../../src/database/mongo';
-import { ReadPost } from '../../../src/common/type/post';
-import cors from '../../../src/util/api/route/cors';
-import parseAsId from '../../../src/parser/blog/post/id';
-import { formObjectIdFromString } from '../../../src/database/mongo/util';
+import promisifyMongoDb from '../../../../src/database/mongo';
+import cors from '../../../../src/util/api/route/cors';
+import parseAsId from '../../../../src/parser/blog/post/id';
+import { formObjectIdFromString } from '../../../../src/database/mongo/util';
+import { ReadPost } from '../../../../src/common/type/post';
 
 type Response = Readonly<{
     post: ReadPost;

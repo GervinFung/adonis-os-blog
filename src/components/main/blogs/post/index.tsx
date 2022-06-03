@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { css } from '@emotion/css';
-import axios from 'axios';
 import minutesToRead from 'minutes-to-read';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
@@ -8,8 +7,10 @@ import remarkRehype from 'remark-rehype';
 import rehypeReact from 'rehype-react';
 import { ReadPost } from '../../../../common/type/post';
 import { blogParser } from '../../../../parser';
-import { val } from '../../../../util/const';
+import { api } from '../../../../util/const';
 import { capitalize } from 'granula-string';
+import adonisAxios from '../../../../axios';
+import { ToastError } from '../../toasify';
 
 const Post = ({
     id,
@@ -25,8 +26,8 @@ const Post = ({
     const { post } = state;
 
     React.useEffect(() => {
-        axios
-            .get(`/api/${val.post}/${id}`)
+        adonisAxios
+            .get(`${api.post.one}/${id}`)
             .then(({ data }) =>
                 setState((prev) => {
                     const { post } = blogParser();
@@ -36,7 +37,7 @@ const Post = ({
                     };
                 })
             )
-            .catch(alert);
+            .catch(ToastError);
     }, []);
 
     if (!post) {

@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import promisifyMongoDb from '../../../src/database/mongo';
-import { ShowPosts } from '../../../src/common/type/post';
-import parseAsPage from '../../../src/parser/blog/posts/page';
-import cors from '../../../src/util/api/route/cors';
+import promisifyMongoDb from '../../../../src/database/mongo';
+import { ShowPosts } from '../../../../src/common/type/post';
+import parseAsPage from '../../../../src/parser/blog/posts/page';
+import cors from '../../../../src/util/api/route/cors';
 
 type Response = Readonly<{
     posts: ShowPosts;

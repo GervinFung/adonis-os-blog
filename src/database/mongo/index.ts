@@ -1,5 +1,6 @@
 import { MongoClient } from 'mongodb';
 import mongodbConfig from './config';
+import authRecordCollection from './auth-record';
 import postCollection from './post';
 
 const promisifyMongoDb = (async () => {
@@ -34,12 +35,16 @@ const promisifyMongoDb = (async () => {
 
     const {
         dbName,
-        collections: { post },
+        collections: { post, authRecord },
     } = config;
+
     const database = client.db(dbName);
 
     return {
         postCollection: postCollection(() => database.collection(post)),
+        authRecordCollection: authRecordCollection(() =>
+            database.collection(authRecord)
+        ),
         close: () => client.close(),
     } as const;
 })();

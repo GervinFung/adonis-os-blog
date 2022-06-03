@@ -1,6 +1,9 @@
 import * as React from 'react';
 import type { AppProps } from 'next/app';
 import Layout from '../src/components/layout';
+import { AdonisUser, onUserStateChanged } from '../src/auth';
+import { ToastContainer } from 'react-toastify';
+import { injectStyle } from 'react-toastify/dist/inject-style';
 
 type Settings = Readonly<{
     isOpen: boolean;
@@ -27,12 +30,31 @@ const AppContext = React.createContext(
                 ...defaultSettings,
                 zIndex: 1,
             } as Settings,
+            user: undefined as AdonisUser,
+            isLoadedUser: false,
         };
     })()
 );
 
 const App = ({ Component, pageProps }: AppProps) => {
     const [state, setState] = React.useState(React.useContext(AppContext));
+
+    React.useEffect(() => {
+        if (window !== undefined) {
+            injectStyle();
+        }
+        const style = (color: string) =>
+            `background: #282A36; color: ${color}; font-family:monospace; font-size: 2em`;
+        console.log('%cBonjour?', style('#50FA7B'));
+        const unsubscribe = onUserStateChanged((user) => {
+            setState((prev) => ({
+                ...prev,
+                isLoadedUser: true,
+                user,
+            }));
+        });
+        return unsubscribe;
+    }, []);
 
     const setIsVisible =
         (settingsName: 'terminalSettings' | 'blogsSettings') =>
@@ -140,6 +162,7 @@ const App = ({ Component, pageProps }: AppProps) => {
                 },
             }}
         >
+            <ToastContainer />
             <Layout title="Adonis OS Blog">
                 <Component {...pageProps} />
             </Layout>

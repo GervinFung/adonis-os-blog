@@ -1,11 +1,11 @@
 import promiseifyMongoDb from '../../../src/database/mongo';
-import testMutation from './mutation';
-import testQuery from './query';
+import testPost from './post';
+import testAuthRecord from './auth-record';
 
 const testMongo = () =>
     describe('MongoDB', () => {
-        testQuery();
-        testMutation();
+        testAuthRecord();
+        testPost();
         afterAll(async () => {
             (await promiseifyMongoDb).close();
         });
