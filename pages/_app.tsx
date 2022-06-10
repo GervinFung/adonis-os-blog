@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { AppProps } from 'next/app';
 import Layout from '../src/components/layout';
-import { AdonisUser, onUserStateChanged } from '../src/auth';
+import { AdonisAdmin, onAdminStateChanged } from '../src/auth';
 import { ToastContainer } from 'react-toastify';
 import { injectStyle } from 'react-toastify/dist/inject-style';
 
@@ -30,7 +30,7 @@ const AppContext = React.createContext(
                 ...defaultSettings,
                 zIndex: 1,
             } as Settings,
-            user: undefined as AdonisUser,
+            admin: undefined as AdonisAdmin,
             isLoadedUser: false,
         };
     })()
@@ -46,11 +46,11 @@ const App = ({ Component, pageProps }: AppProps) => {
         const style = (color: string) =>
             `background: #282A36; color: ${color}; font-family:monospace; font-size: 2em`;
         console.log('%cBonjour?', style('#50FA7B'));
-        const unsubscribe = onUserStateChanged((user) => {
+        const unsubscribe = onAdminStateChanged((admin) => {
             setState((prev) => ({
                 ...prev,
                 isLoadedUser: true,
-                user,
+                admin,
             }));
         });
         return unsubscribe;

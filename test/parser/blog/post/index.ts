@@ -1,11 +1,23 @@
 import testIdParser from './id';
-import testPostParser from './post';
+import testMutatePostParser from './mutation';
+import testQueryPostParser from './query';
+import testUpdateStatusParser from './status';
 
-const testBlogPostParser = () => {
+const dummyDataCommonProps = {
+    title: 'Title',
+    description: 'Description',
+    content: 'Content',
+} as const;
+
+type DummyData = typeof dummyDataCommonProps;
+
+const testBlogPostParser = () =>
     describe('Blog', () => {
-        testPostParser();
+        testQueryPostParser(dummyDataCommonProps);
+        testMutatePostParser(dummyDataCommonProps);
         testIdParser();
+        testUpdateStatusParser();
     });
-};
 
+export type { DummyData };
 export default testBlogPostParser;

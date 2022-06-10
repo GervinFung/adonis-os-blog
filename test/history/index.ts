@@ -1,30 +1,30 @@
 import { equal } from '../util';
-import { createInitialHistory, createHistory } from '../../src/history';
+import { createInitialUserHistory, createUserHistory } from '../../src/history';
 
-const testHistory = () => {
+const testHistory = () =>
     describe('History Stack', () => {
         it('should throw error when attempting to create history that did not fulfill the conditions, otherwise create it', () => {
             // 1. Empty stack, index for navigation is not -1
             expect(() =>
-                createHistory({ stack: [], indexNavigation: 0 })
+                createUserHistory({ stack: [], indexNavigation: 0 })
             ).toThrowError();
             // 2. Non-empty stack, index for navigation is -1
             expect(() =>
-                createHistory({
+                createUserHistory({
                     stack: [{ type: 'paginated', page: 1 }],
                     indexNavigation: -1,
                 })
             ).toThrowError();
             // 3. Non-empty stack, index for navigation is not -1
             expect(
-                createHistory({
+                createUserHistory({
                     stack: [{ type: 'paginated', page: 1 }],
                     indexNavigation: 0,
                 })
             ).toBeTruthy();
             // 4. Empty stack, index for navigation is -1
             expect(
-                createHistory({ stack: [], indexNavigation: -1 })
+                createUserHistory({ stack: [], indexNavigation: -1 })
             ).toBeTruthy();
         });
         it('should push stack', () => {
@@ -34,7 +34,7 @@ const testHistory = () => {
                         type: 'paginated',
                         page,
                     }),
-                createInitialHistory()
+                createInitialUserHistory()
             );
             expect(history.current()).toStrictEqual({
                 type: 'paginated',
@@ -62,7 +62,7 @@ const testHistory = () => {
                                 type: 'one',
                                 id,
                             }),
-                        createInitialHistory()
+                        createInitialUserHistory()
                     )
                 )
             );
@@ -91,7 +91,7 @@ const testHistory = () => {
                             type: 'one',
                             id,
                         }),
-                    createInitialHistory()
+                    createInitialUserHistory()
                 )
             );
 
@@ -116,7 +116,7 @@ const testHistory = () => {
                         type: 'one',
                         id,
                     }),
-                createInitialHistory()
+                createInitialUserHistory()
             );
 
             // test backward traversing
@@ -191,6 +191,5 @@ const testHistory = () => {
             );
         });
     });
-};
 
 export default testHistory;

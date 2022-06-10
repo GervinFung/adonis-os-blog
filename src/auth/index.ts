@@ -6,9 +6,9 @@ import {
     Auth,
 } from 'firebase/auth';
 import adonisAxios from '../axios';
-import parseNullableAsDefaultOrUndefined from '../parser/type/nullToUndefined';
 import { app } from './config';
 import { api } from '../util/const';
+import nullableToUndefinedPropsParser from '../parser/type';
 
 const auth = (() => {
     const auth = getAuth();
@@ -16,7 +16,7 @@ const auth = (() => {
     return auth;
 })();
 
-const createAdonisAuthUser = (auth: Auth) => {
+const createAdonisAuthAdmin = (auth: Auth) => {
     if (!app) {
         throw new Error('firebase app is not initialized');
     }
@@ -38,7 +38,6 @@ const createAdonisAuthUser = (auth: Auth) => {
                     data: {
                         token: await userCredential.user.getIdToken(true),
                     },
-                    headers: {},
                 });
                 return {
                     type: 'succeed',
@@ -51,13 +50,12 @@ const createAdonisAuthUser = (auth: Auth) => {
                 } as const;
             }
         },
-        signOut: async (user: NonNullableAdonisUser) => {
+        signOut: async (user: NonNullableAdonisAdmin) => {
             try {
                 await adonisAxios.post(api.admin.logout, {
                     data: {
                         token: await user.getIdToken(true),
                     },
-                    headers: {},
                 });
                 await auth.signOut();
                 return {
@@ -73,14 +71,14 @@ const createAdonisAuthUser = (auth: Auth) => {
     } as const;
 };
 
-const adonisUser = createAdonisAuthUser(auth);
+const adonisAdmin = createAdonisAuthAdmin(auth);
 
-const onUserStateChanged = (setUser: (user: AdonisUser) => void) =>
+const onAdminStateChanged = (setAdmin: (admin: AdonisAdmin) => void) =>
     onAuthStateChanged(auth, (user) =>
-        setUser(parseNullableAsDefaultOrUndefined(user))
+        setAdmin(nullableToUndefinedPropsParser().parseValue(user))
     );
 
-type AdonisUser = User | undefined;
+type AdonisAdmin = User | undefined;
 
 type AuthResponse =
     | Readonly<{
@@ -95,8 +93,8 @@ type AuthResponse =
           name?: undefined;
       }>;
 
-type NonNullableAdonisUser = NonNullable<AdonisUser>;
+type NonNullableAdonisAdmin = NonNullable<AdonisAdmin>;
 
-export { adonisUser, onUserStateChanged, auth };
+export { adonisAdmin, onAdminStateChanged, auth };
 
-export type { AdonisUser, NonNullableAdonisUser, AuthResponse };
+export type { AdonisAdmin, NonNullableAdonisAdmin, AuthResponse };

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { css } from '@emotion/css';
+import Input from '../../common/input';
 
 const Field = ({
     value,
@@ -42,26 +43,12 @@ const Field = ({
                 display: flex;
             `}
         >
-            <input
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="off"
-                spellCheck="false"
+            <Input
                 type={type}
-                required={true}
-                placeholder={placeHolder}
+                placeHolder={placeHolder}
                 name={name}
                 value={value}
-                onChange={(event) => setValue(event.target.value)}
-                className={css`
-                    outline: none;
-                    padding: 12px 16px;
-                    border-radius: 4px;
-                    border: 1px solid black;
-                    width: 100%;
-                    box-sizing: border-box;
-                    resize: vertical;
-                `}
+                onChange={setValue}
             />
         </div>
     </div>

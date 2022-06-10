@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { css } from '@emotion/css';
 import Terminal from '../src/components/main/terminal';
-import Blogs from '../src/components/main/blogs';
+import Blogs from '../src/components/main/blogs/handler/admin';
 import { AppContext } from './_app';
 import Auth from '../src/components/main/auth';
 
 const Admin = () => {
-    const { user, terminalSettings, blogsSettings } =
+    const { admin, terminalSettings, blogsSettings } =
         React.useContext(AppContext);
 
     return (
@@ -17,12 +17,12 @@ const Admin = () => {
                 position: relative;
             `}
         >
-            {!user ? (
+            {!admin ? (
                 <Auth />
             ) : (
                 <>
                     <Terminal settings={terminalSettings} />
-                    <Blogs settings={blogsSettings} />
+                    <Blogs admin={admin} settings={blogsSettings} />
                 </>
             )}
         </div>

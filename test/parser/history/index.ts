@@ -1,11 +1,10 @@
-import testIndexNavigationParser from './indexNavigation';
+import testIndexNavigationParser from './index-navigation';
 import testStackParser from './stack';
 
-const testHistoryParser = () => {
+const testHistoryParser = () =>
     describe('History', () => {
         testStackParser();
         testIndexNavigationParser();
     });
-};
 
 export default testHistoryParser;

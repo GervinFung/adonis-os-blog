@@ -14,7 +14,7 @@ import {
     isFullHeightFunc,
     Position,
 } from '../common';
-import { adonisUser } from '../../../auth';
+import { adonisAdmin } from '../../../auth';
 import { ToastError, ToastInfo } from '../toasify';
 import { useRouter } from 'next/router';
 
@@ -27,7 +27,7 @@ const Terminal = ({
         return null;
     }
 
-    const { user } = React.useContext(AppContext);
+    const { admin } = React.useContext(AppContext);
 
     const { route } = useRouter();
 
@@ -176,18 +176,18 @@ const Terminal = ({
                                 },
                             };
 
-                            return route === '/admin' && !user
+                            return route === '/admin' && !admin
                                 ? defaultCommands
                                 : {
                                       ...defaultCommands,
                                       signout: () => {
-                                          if (!user) {
+                                          if (!admin) {
                                               throw new Error(
                                                   'Current user cannot be undefined'
                                               );
                                           }
-                                          adonisUser
-                                              .signOut(user)
+                                          adonisAdmin
+                                              .signOut(admin)
                                               .then((result) => {
                                                   switch (result.type) {
                                                       case 'succeed':
@@ -199,6 +199,12 @@ const Terminal = ({
                                                           const { error } =
                                                               result;
                                                           if (
+                                                              typeof error ===
+                                                              'string'
+                                                          ) {
+                                                              ToastError(error);
+                                                          }
+                                                          if (
                                                               error instanceof
                                                               Error
                                                           ) {
@@ -206,29 +212,18 @@ const Terminal = ({
                                                                   message,
                                                               } = error;
                                                               ToastError(
-                                                                  message.includes(
-                                                                      'password'
-                                                                  ) ||
+                                                                  message,
+                                                                  (message) =>
+                                                                      message.includes(
+                                                                          'password'
+                                                                      ) ||
                                                                       message.includes(
                                                                           'email'
                                                                       )
-                                                                      ? 'Invalid credential'
-                                                                      : message
+                                                                          ? 'Invalid credential'
+                                                                          : message
                                                               );
                                                           }
-                                                          if (
-                                                              typeof error ===
-                                                              'string'
-                                                          ) {
-                                                              ToastError(error);
-                                                          } else {
-                                                              ToastError(
-                                                                  JSON.stringify(
-                                                                      error
-                                                                  )
-                                                              );
-                                                          }
-                                                          break;
                                                       }
                                                   }
                                                   setIsOpen(false);

@@ -48,34 +48,6 @@ const testInsertUpdate = () =>
                 )
             ).toBe(dataTwo.authTime);
         });
-        it('should query, insert, update auth record with undefined email', async () => {
-            const { authRecordCollection } = await promisifyMongoDb;
-
-            const data = {
-                aud: 'adonis-os-blog-local',
-                timeCreated: new Date(),
-                type: 'email-undefined',
-                uid: 'unique-id',
-                authTime: 1,
-            } as const;
-
-            expect(
-                (await authRecordCollection.insertOne(data)).toHexString()
-            ).toBeTruthy();
-
-            expect(
-                await authRecordCollection.updateOne(
-                    {
-                        aud: data.aud,
-                        uid: data.uid,
-                        authTime: data.authTime,
-                    },
-                    {
-                        timeLoggedOut: new Date(),
-                    }
-                )
-            ).toBe(data.authTime);
-        });
     });
 
 export default testInsertUpdate;

@@ -1,9 +1,11 @@
-import testQueryInsertUpdateDeleteOne from './query-insert-update-delete-one';
+import testQueryInsertUpdateOne from './query-insert-update-one';
 import testQueryPaginated from './query-paginated';
+import testQueryPublishUnpublishDeleteRestore from './query-publish-unpubish-delete-restore-one';
 
 const testPost = () =>
     describe('Post', () => {
-        testQueryInsertUpdateDeleteOne();
+        testQueryPublishUnpublishDeleteRestore();
+        testQueryInsertUpdateOne();
         testQueryPaginated();
     });
 

@@ -1,52 +1,136 @@
 import { Collection, ObjectId, Document } from 'mongodb';
 import {
-    AllPosts,
-    ChangeHexIdToMongoId,
-    ChangeIdToMongoId,
+    ChangeStringIdToMongoId,
     InsertPost,
-    QueryUpdatePost,
-    ReadPost,
-    ShowPosts,
+    UpdatePostExcludeTimeUpdated,
+    PublishedPosts,
+    UnpublishedPosts,
     UpdatePost,
+    DeletedPost,
+    UnpublishedPost,
+    PublishedPost,
+    DeletedPosts,
+    PostsQueryOption,
 } from '../../common/type/post';
+import nullableToUndefinedPropsParser from '../../parser/type';
 import { postsPerPage } from '../../util/const';
 import { assertUpdateOneComplete } from './util';
 
+type ShowManyOptions = Readonly<{
+    skip: number;
+}>;
+
 const postCollection = (getPost: () => Collection<Document>) => {
-    const showMany = async ({
-        skip,
-        isIncludeUnpublished,
-    }: Readonly<{
-        skip: number;
-        isIncludeUnpublished: boolean;
-    }>): Promise<ShowPosts> =>
-        (
+    const postQuery = (option: PostsQueryOption) => {
+        switch (option) {
+            case 'unpublished':
+                return {
+                    timeDeleted: null,
+                    timePublished: null,
+                };
+            case 'published':
+                return {
+                    timeDeleted: null,
+                    //ref: https://www.mongodb.com/docs/manual/reference/operator/query/
+                    timePublished: {
+                        $ne: null,
+                    },
+                };
+            case 'deleted':
+                return {
+                    timePublished: null,
+                    timeDeleted: {
+                        $ne: null,
+                    },
+                };
+        }
+    };
+
+    const totalPosts = async (queryOption: PostsQueryOption): Promise<number> =>
+        (await getPost().find(postQuery(queryOption)).toArray()).length;
+
+    const nullToUndefinedParser = nullableToUndefinedPropsParser();
+
+    const showOne = async <T = DeletedPost | PublishedPost | UnpublishedPost>(
+        id: ObjectId,
+        type: PostsQueryOption
+    ) => {
+        const timeFieldRequired =
+            type === 'published'
+                ? 'timePublished'
+                : type === 'unpublished'
+                ? 'timeCreated'
+                : 'timeDeleted';
+        const post = await getPost().findOne<T>(
+            {
+                _id: id,
+                ...postQuery(type),
+            },
+            {
+                projection: {
+                    _id: 0,
+                    title: 1,
+                    description: 1,
+                    content: 1,
+                    [timeFieldRequired]: 1,
+                },
+            }
+        );
+        if (post) {
+            return nullToUndefinedParser.parseObject(post) as T;
+        }
+        if (
+            !(await getPost().findOne<T>(
+                {
+                    _id: id,
+                },
+                {
+                    projection: {
+                        _id: 1,
+                    },
+                }
+            ))
+        ) {
+            throw new Error(
+                `Cannot query for post with invalid id of ${id.toHexString()}`
+            );
+        }
+        return undefined;
+    };
+
+    const showMany = async <
+        T extends UnpublishedPosts | PublishedPosts | DeletedPosts
+    >(
+        { skip }: ShowManyOptions,
+        type: PostsQueryOption
+    ) => {
+        const timeFieldRequired =
+            type === 'published'
+                ? 'timePublished'
+                : type === 'unpublished'
+                ? 'timeCreated'
+                : 'timeDeleted';
+        return (
             await getPost()
-                .find<ChangeHexIdToMongoId<ShowPosts[0]>>(
-                    isIncludeUnpublished
-                        ? {}
-                        : {
-                              //ref: https://www.mongodb.com/docs/manual/reference/operator/query/
-                              timePublished: {
-                                  $ne: undefined,
-                              },
-                          },
-                    {
-                        projection: {
-                            _id: 1,
-                            title: 1,
-                            description: 1,
-                            timePublished: 1,
-                        },
-                    }
-                )
+                .find<ChangeStringIdToMongoId<T[0]>>(postQuery(type), {
+                    projection: {
+                        _id: 1,
+                        title: 1,
+                        description: 1,
+                        [timeFieldRequired]: 1,
+                    },
+                })
                 .limit(postsPerPage)
                 .skip(skip * postsPerPage)
                 .sort({
-                    timePublished: -1,
+                    [timeFieldRequired]: -1,
                 })
                 .toArray()
-        ).map(({ _id, ...props }) => ({ id: _id.toHexString(), ...props }));
+        ).map(({ _id, ...props }) => ({
+            ...props,
+            id: _id.toHexString(),
+        }));
+    };
 
     return {
         // testing purpose only
@@ -68,78 +152,26 @@ const postCollection = (getPost: () => Collection<Document>) => {
             return insertedIds;
         },
         // general use
-        totalPosts: async (): Promise<number> =>
-            (
-                await getPost()
-                    .find({
-                        timePublished: {
-                            $ne: undefined,
-                        },
-                    })
-                    .toArray()
-            ).length,
-        showAllPosts: async (): Promise<AllPosts> =>
-            (
-                await getPost()
-                    .find<ChangeIdToMongoId<AllPosts[0]>>(
-                        {},
-                        {
-                            projection: {
-                                _id: 1,
-                                title: 1,
-                                description: 1,
-                                timePublished: 1,
-                                timeUpdated: 1,
-                                timeCreated: 1,
-                            },
-                        }
-                    )
-                    .sort({
-                        timePublished: -1,
-                    })
-                    .toArray()
-            ).map(({ _id, ...props }) => ({ id: _id, ...props })),
-        showManyPublishedOnly: async ({
-            skip,
-        }: Readonly<{
-            skip: number;
-        }>): Promise<ShowPosts> =>
-            await showMany({ skip, isIncludeUnpublished: false }),
-        showManyWithUnpublished: async ({
-            skip,
-        }: Readonly<{
-            skip: number;
-        }>): Promise<ShowPosts> =>
-            await showMany({ skip, isIncludeUnpublished: true }),
-        showOne: async (id: ObjectId): Promise<ReadPost> => {
-            const post = await getPost().findOne<ReadPost>(
-                {
-                    _id: id,
-                    timePublished: {
-                        $ne: undefined,
-                    },
-                },
-                {
-                    projection: {
-                        _id: 0,
-                        title: 1,
-                        description: 1,
-                        content: 1,
-                        timePublished: 1,
-                    },
-                }
-            );
-            if (!post) {
-                throw new Error(
-                    `Cannot find post with id of ${id.toHexString()}`
-                );
-            }
-            return post;
-        },
+        totalUnpublishedPosts: () => totalPosts('unpublished'),
+        totalPublishedPosts: () => totalPosts('published'),
+        totalDeletedPosts: () => totalPosts('deleted'),
+        showManyUnpublished: (options: ShowManyOptions) =>
+            showMany<UnpublishedPosts>(options, 'unpublished'),
+        showManyPublished: (options: ShowManyOptions) =>
+            showMany<PublishedPosts>(options, 'published'),
+        showManyDeleted: (options: ShowManyOptions) =>
+            showMany<DeletedPosts>(options, 'deleted'),
+        showDeletedOne: (id: ObjectId) => showOne<DeletedPost>(id, 'deleted'),
+        showUnpublishedOne: (id: ObjectId) =>
+            showOne<UnpublishedPost>(id, 'unpublished'),
+        showPublishedOne: (id: ObjectId) =>
+            showOne<PublishedPost>(id, 'published'),
         insertOne: async (post: InsertPost): Promise<ObjectId> => {
-            const { acknowledged, insertedId } = await getPost().insertOne(
-                post
-            );
+            const { acknowledged, insertedId } = await getPost().insertOne({
+                ...post,
+                timeDeleted: undefined,
+                timePublished: undefined,
+            });
             if (!acknowledged) {
                 throw new Error(`Insert post ${post} failed`);
             }
@@ -148,9 +180,14 @@ const postCollection = (getPost: () => Collection<Document>) => {
         deleteOne: async (id: ObjectId): Promise<ObjectId> =>
             assertUpdateOneComplete(
                 await getPost().updateOne(
-                    { _id: id },
+                    {
+                        _id: id,
+                        timeDeleted: undefined,
+                    },
                     {
                         $set: {
+                            timeDeleted: new Date(),
+                            timeUpdated: new Date(),
                             timePublished: undefined,
                         },
                     }
@@ -160,13 +197,64 @@ const postCollection = (getPost: () => Collection<Document>) => {
                     infoToReturn: id,
                 }
             ),
-        updateOne: async (id: ObjectId, post: UpdatePost): Promise<ObjectId> =>
+        restoreOne: async (id: ObjectId) =>
             assertUpdateOneComplete(
                 await getPost().updateOne(
-                    { _id: id },
+                    {
+                        _id: id,
+                        timeDeleted: {
+                            $ne: undefined,
+                        },
+                    },
+                    {
+                        $set: {
+                            timeDeleted: undefined,
+                            timeUpdated: new Date(),
+                        },
+                    }
+                ),
+                {
+                    debugInfo: id,
+                    infoToReturn: id,
+                }
+            ),
+        updateOne: async (
+            post: UpdatePostExcludeTimeUpdated &
+                Readonly<{
+                    timeUpdated: UpdatePost['timeUpdated'];
+                }>
+        ): Promise<ObjectId> =>
+            assertUpdateOneComplete(
+                await getPost().updateOne(
+                    {
+                        _id: post.id,
+                        timeDeleted: undefined,
+                    },
                     {
                         $set: {
                             ...post,
+                        },
+                    }
+                ),
+                {
+                    debugInfo: post.id,
+                    infoToReturn: post.id,
+                }
+            ),
+        unpublishOne: async (id: ObjectId) =>
+            assertUpdateOneComplete(
+                await getPost().updateOne(
+                    {
+                        _id: id,
+                        timeDeleted: undefined,
+                        timePublished: {
+                            $ne: undefined,
+                        },
+                    },
+                    {
+                        $set: {
+                            timePublished: undefined,
+                            timeUpdated: new Date(),
                         },
                     }
                 ),
@@ -178,7 +266,11 @@ const postCollection = (getPost: () => Collection<Document>) => {
         publishOne: async (id: ObjectId) =>
             assertUpdateOneComplete(
                 await getPost().updateOne(
-                    { _id: id },
+                    {
+                        _id: id,
+                        timeDeleted: undefined,
+                        timePublished: undefined,
+                    },
                     {
                         $set: {
                             timePublished: new Date(),
@@ -191,34 +283,6 @@ const postCollection = (getPost: () => Collection<Document>) => {
                     infoToReturn: id,
                 }
             ),
-        showPostToBeUpdated: async (id: ObjectId): Promise<QueryUpdatePost> => {
-            const post = await getPost().findOne<
-                ChangeIdToMongoId<QueryUpdatePost>
-            >(
-                {
-                    _id: id,
-                },
-                {
-                    projection: {
-                        _id: 1,
-                        title: 1,
-                        description: 1,
-                        content: 1,
-                        timePublished: 1,
-                    },
-                }
-            );
-            if (!post) {
-                throw new Error(
-                    `Cannot find post with id of ${id.toHexString()}`
-                );
-            }
-            const { _id, ...props } = post;
-            return {
-                ...props,
-                id: _id,
-            };
-        },
     } as const;
 };
 

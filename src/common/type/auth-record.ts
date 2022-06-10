@@ -12,15 +12,8 @@ type FilterForUpdateAuth = Readonly<{
 type InsertAuth = Readonly<
     FilterForUpdateAuth & {
         timeCreated: Date;
-    } & (
-            | {
-                  type: 'email-undefined';
-              }
-            | {
-                  type: 'email-defined';
-                  email: string;
-              }
-        )
+        email: string;
+    }
 >;
 
 type UpdateAuth = Readonly<{

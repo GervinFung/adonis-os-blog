@@ -1,6 +1,6 @@
 import { css } from '@emotion/css';
 import * as React from 'react';
-import Button from './button';
+import LoginButton from './button';
 import Header from './header';
 import Input, { FieldProps } from './input';
 
@@ -40,7 +40,7 @@ const Auth = () => {
                     email={createProps('email')}
                     password={createProps('password')}
                 />
-                <Button email={email} password={password} />
+                <LoginButton email={email} password={password} />
             </div>
         </div>
     );
