@@ -38,6 +38,7 @@ jobs:
               env:
                   MONGO_DB: testBlog
                   MONGO_COLLECTION_POST: post
+                  MONGO_COLLECTION_AUTH_RECORD: authRecord
                   MONGO_USER: runner
                   MONGO_PASSWORD: mongodb
                   MONGO_ADDRESS: localhost
