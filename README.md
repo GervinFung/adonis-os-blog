@@ -1,5 +1,7 @@
 # **My Blog - Adonis OS Blog**
 
+_Note: check out [Adonix-Blog](https://github.com/GervinFung/adonix-blog)_ as it is a remake of my blog, things just got out of hand for this repo
+
 A blog post that simulate an OS and has 3 apps
 
 | App                | Why                                                                                                                       |
@@ -15,8 +17,6 @@ Of course it doesn't simulate a real OS, just that I chose to develop my own blo
 Since I believe that a blog can be used to share personal view or information on various topics in an informal way, it should be designed and tailored as such, instead of making it similar to other blog posts. In other words, every blogger should have their own unique design of their blog
 
 Hence by doing so I allowed readers to take a glimpse of my software world (Linux and Terminal) and read blog at the same time.
-
-Hopefully that explains why this blog takes on a OS-Like design with various astronaut as background images, for more info, checkout my first blog
 
 <details>
 <summary>Click to preview!</summary>
@@ -54,13 +54,13 @@ Hopefully that explains why this blog takes on a OS-Like design with various ast
 | Development Language                                                   | TypeScipt      |
 | Scripting Language                                                     | JavaScript     |
 | Bundling                                                               | Esbuild        |
+| Authentication                                                         | Firebase       |
 | Testing                                                                | Jest           |
 | Styling                                                                | Emotion-css    |
 | Framework                                                              | NextJS         |
 | Build Automation Tool                                                  | Make           |
 | Text Editor                                                            | NeoVim         |
 | Dependency Management                                                  | Yarn           |
-| Command Line Tool                                                      | Yargs          |
 | Continuous Integration, Continuous Delivery, and Continuous Deployment | GitHub Actions |
 
 ## How to build this app?
@@ -83,21 +83,14 @@ _*Make sure you have `yarn` and `make` available in your system*_
 
 _*Below are the listed commands that you can use to build/develop/test this app*_
 
-| Command                  | Usage                                                                                            |
-| ------------------------ | ------------------------------------------------------------------------------------------------ |
-| make dev                 | Start development                                                                                |
-| make start               | Run the built and bundled production code                                                        |
-| make install             | Install all dependencies                                                                         |
-| make test                | Run all test code                                                                                |
-| make build               | Bundle and build the app                                                                         |
-| make typecheck           | Run type-checking for source code                                                                |
-| make lint                | Run linter for source and test code                                                              |
-| make format-check        | Run prettier to check source and test code format                                                |
-| make format              | Run prettier to format source and test code                                                      |
-| make cli-read            | Write to a json file for all of the posts                                                        |
-| make cli-insert          | Read markdown file and json file (generated template) to insert post data                        |
-| make cli-insert-template | Generate template to write post data that will be used for `make cli-insert`                     |
-| make cli-update          | Read markdown file and json file (generated template) to update post data                        |
-| make cli-update-template | Generate template to write and update existing post data that will be used for `make cli-update` |
-| make cli-publish         | Publish a given post                                                                             |
-| make cli-delete          | Soft delete a given post (unpublish)                                                             |
+| Command           | Usage                                             |
+| ----------------- | ------------------------------------------------- |
+| make dev          | Start development                                 |
+| make start        | Run the built and bundled production code         |
+| make install      | Install all dependencies                          |
+| make test         | Run all test code                                 |
+| make build        | Bundle and build the app                          |
+| make typecheck    | Run type-checking for source code                 |
+| make lint         | Run linter for source and test code               |
+| make format-check | Run prettier to check source and test code format |
+| make format       | Run prettier to format source and test code       |
