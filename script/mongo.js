@@ -12,8 +12,10 @@ db = db.getSiblingDB('blog');
 
 // program db
 db.createCollection('post');
+db.createCollection('authRecord');
 
 db = db.getSiblingDB('testBlog');
 
 // test db
 db.createCollection('post');
+db.createCollection('authRecord');

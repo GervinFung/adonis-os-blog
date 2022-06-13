@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { css } from '@emotion/css';
 import Terminal from '../src/components/main/terminal';
-import Blogs from '../src/components/main/blogs';
+import Blogs from '../src/components/main/blogs/handler/user';
 import { AppContext } from './_app';
 
 const Index = () => {

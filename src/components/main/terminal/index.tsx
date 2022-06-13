@@ -14,6 +14,9 @@ import {
     isFullHeightFunc,
     Position,
 } from '../common';
+import { adonisAdmin } from '../../../auth';
+import { ToastError, ToastInfo } from '../toasify';
+import { useRouter } from 'next/router';
 
 const Terminal = ({
     settings: { isOpen, setIsOpen, isVisible, setIsVisible, zIndex, setZIndex },
@@ -23,6 +26,10 @@ const Terminal = ({
     if (!isOpen) {
         return null;
     }
+
+    const { admin } = React.useContext(AppContext);
+
+    const { route } = useRouter();
 
     const open = (link: string) =>
         window.open(link, '_blank', 'noopener, noreferrer');
@@ -124,46 +131,108 @@ const Terminal = ({
                         fontFamily="JetBrains+Mono"
                         height={!isFullHeight ? '450px' : '100%'}
                         width="100%"
-                        commands={{
-                            vi: () => `why use 'vi'? when you can use 'vim'`,
-                            vim: () => `vi improved? give 'nvim' a try, cmon`,
-                            emacs: () => `emacs? seriously? legends use 'nano'`,
-                            nvim: () =>
-                                `nvim is good, but I heard 'emacs' is not bad too`,
-                            nano: () =>
-                                `one does not simply use nano, one shall use 'vi' to be efficient`,
-                            blog: () => {
-                                const { isOpen } = blogsSettings;
-                                if (isOpen) {
-                                    blogsSettings.setZIndex();
-                                    return 'blog already opened!';
-                                }
-                                blogsSettings.setIsVisible(true);
-                                blogsSettings.setIsOpen(true);
-                                return 'blog opened!\nsending blog to background process...\ncompleted!';
-                            },
-                            exit: () => {
-                                setIsOpen(false);
-                                return '';
-                            },
-                            php: () => {
-                                open(
-                                    'https://www.reddit.com/r/ProgrammerHumor/comments/7ug52d/another_php_joke/'
-                                );
-                                return 'as a TypeScript developer, I am required to detest PHP. just kiding';
-                            },
-                            tsc: () => {
-                                open(
-                                    'https://www.reddit.com/r/ProgrammerHumor/comments/csi35q/typescript_and_javascript/'
-                                );
-                                return `version ${json.devDependencies.typescript.replace(
-                                    '^',
-                                    ''
-                                )}`;
-                            },
-                            julia: () =>
-                                'ah yes my beloved, wonder who she is? click <a href="https://julialang.org/" target="_blank" rel="external nofollow noopener noreferrer">Here</a> to find out more',
-                        }}
+                        commands={(() => {
+                            const defaultCommands = {
+                                vi: () =>
+                                    `why use 'vi'? when you can use 'vim'`,
+                                vim: () =>
+                                    `vi improved? give 'nvim' a try, cmon`,
+                                emacs: () =>
+                                    `emacs? seriously? legends use 'nano'`,
+                                nvim: () =>
+                                    `nvim is good, but I heard 'emacs' is not bad too`,
+                                nano: () =>
+                                    `one does not simply use nano, one shall use 'vi' to be efficient`,
+                                julia: () =>
+                                    'ah yes my beloved, wonder who she is? click <a href="https://julialang.org/" target="_blank" rel="external nofollow noopener noreferrer">Here</a> to find out more',
+                                blog: () => {
+                                    const { isOpen } = blogsSettings;
+                                    if (isOpen) {
+                                        blogsSettings.setZIndex();
+                                        return 'blog already opened!';
+                                    }
+                                    blogsSettings.setIsVisible(true);
+                                    blogsSettings.setIsOpen(true);
+                                    return 'blog opened!\nsending blog to background process...\ncompleted!';
+                                },
+                                exit: () => {
+                                    setIsOpen(false);
+                                    return '';
+                                },
+                                php: () => {
+                                    open(
+                                        'https://www.reddit.com/r/ProgrammerHumor/comments/7ug52d/another_php_joke/'
+                                    );
+                                    return 'as a TypeScript developer, I am required to detest PHP. just kiding';
+                                },
+                                tsc: () => {
+                                    open(
+                                        'https://www.reddit.com/r/ProgrammerHumor/comments/csi35q/typescript_and_javascript/'
+                                    );
+                                    return `version ${json.devDependencies.typescript.replace(
+                                        '^',
+                                        ''
+                                    )}`;
+                                },
+                            };
+
+                            return route === '/admin' && !admin
+                                ? defaultCommands
+                                : {
+                                      ...defaultCommands,
+                                      signout: () => {
+                                          if (!admin) {
+                                              throw new Error(
+                                                  'Current user cannot be undefined'
+                                              );
+                                          }
+                                          adonisAdmin
+                                              .signOut(admin)
+                                              .then((result) => {
+                                                  switch (result.type) {
+                                                      case 'succeed':
+                                                          ToastInfo(
+                                                              'Signed Out'
+                                                          );
+                                                          break;
+                                                      case 'failed': {
+                                                          const { error } =
+                                                              result;
+                                                          if (
+                                                              typeof error ===
+                                                              'string'
+                                                          ) {
+                                                              ToastError(error);
+                                                          }
+                                                          if (
+                                                              error instanceof
+                                                              Error
+                                                          ) {
+                                                              const {
+                                                                  message,
+                                                              } = error;
+                                                              ToastError(
+                                                                  message,
+                                                                  (message) =>
+                                                                      message.includes(
+                                                                          'password'
+                                                                      ) ||
+                                                                      message.includes(
+                                                                          'email'
+                                                                      )
+                                                                          ? 'Invalid credential'
+                                                                          : message
+                                                              );
+                                                          }
+                                                      }
+                                                  }
+                                                  setIsOpen(false);
+                                              })
+                                              .catch(ToastError);
+                                          return 'signing out...';
+                                      },
+                                  };
+                        })()}
                     />
                 </div>
             </div>

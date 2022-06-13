@@ -38,6 +38,7 @@ jobs:
               env:
                   MONGO_DB: testBlog
                   MONGO_COLLECTION_POST: post
+                  MONGO_COLLECTION_AUTH_RECORD: authRecord
                   MONGO_USER: runner
                   MONGO_PASSWORD: mongodb
                   MONGO_ADDRESS: localhost
@@ -48,4 +49,12 @@ jobs:
                   rm -rf __tests__
 
             - name: Run Build
+              env:
+                  NEXT_PUBLIC_FIREBASE_API_KEY: key
+                  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: domain
+                  NEXT_PUBLIC_FIREBASE_PROJECT_ID: id
+                  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: bucket
+                  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: sender
+                  NEXT_PUBLIC_FIREBASE_APP_ID: id
+                  NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: id
               run: make build

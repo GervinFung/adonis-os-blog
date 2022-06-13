@@ -1,13 +1,12 @@
 import testPageParser from './page';
-import testPostsParser from './posts';
+import testPostsParser from './query';
 import testTotalPostParser from './total';
 
-const testBlogPostsParser = () => {
-    describe('Blog', () => {
+const testBlogPostsParser = () =>
+    describe('Posts Parser', () => {
         testPageParser();
-        testPostsParser();
         testTotalPostParser();
+        testPostsParser();
     });
-};
 
 export default testBlogPostsParser;

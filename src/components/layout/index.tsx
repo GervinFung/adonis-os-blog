@@ -57,6 +57,9 @@ const Layout = ({
                 background-repeat: no-repeat;
                 transition: all ease-in-out 0.1s;
                 overflow: hidden;
+                * {
+                    font-family: 'JetBrains Mono', monospace !important;
+                }
             `}
         >
             <Head>

@@ -8,9 +8,10 @@
     },
     "dependencies": {
         "@emotion/css": "^11.9.0",
-        "@emotion/react": "^11.9.0",
         "axios": "^0.27.2",
         "cors": "^2.8.5",
+        "firebase": "^9.8.2",
+        "firebase-admin": "^10.2.0",
         "granula-string": "^1.0.5",
         "minutes-to-read": "^1.1.0",
         "mongodb": "^4.6.0",
@@ -20,12 +21,13 @@
         "react-dom": "^18.0.0",
         "react-draggable": "^4.4.4",
         "react-icons": "^4.3.1",
+        "react-select": "^5.3.2",
+        "react-toastify": "^9.0.3",
         "react-unix-terminal": "^1.0.0",
         "rehype-react": "^7.1.1",
         "remark-parse": "^10.0.1",
         "remark-rehype": "^10.1.0",
-        "unified": "^10.1.2",
-        "yargs": "^17.5.1"
+        "unified": "^10.1.2"
     },
     "devDependencies": {
         "@types/cors": "^2.8.12",

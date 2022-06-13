@@ -1,49 +1,50 @@
 import { equal } from '../util';
-import { createInitialHistory, createHistory } from '../../src/history';
+import { createInitialUserHistory, createUserHistory } from '../../src/history';
 
-const testHistory = () => {
+const testHistory = () =>
     describe('History Stack', () => {
         it('should throw error when attempting to create history that did not fulfill the conditions, otherwise create it', () => {
             // 1. Empty stack, index for navigation is not -1
             expect(() =>
-                createHistory({ stack: [], indexNavigation: 0 })
+                createUserHistory({ stack: [], indexNavigation: 0 })
             ).toThrowError();
             // 2. Non-empty stack, index for navigation is -1
             expect(() =>
-                createHistory({
-                    stack: [{ type: 'posts', page: 1 }],
+                createUserHistory({
+                    stack: [{ type: 'paginated', page: 1 }],
                     indexNavigation: -1,
                 })
             ).toThrowError();
             // 3. Non-empty stack, index for navigation is not -1
             expect(
-                createHistory({
-                    stack: [{ type: 'posts', page: 1 }],
+                createUserHistory({
+                    stack: [{ type: 'paginated', page: 1 }],
                     indexNavigation: 0,
                 })
             ).toBeTruthy();
             // 4. Empty stack, index for navigation is -1
             expect(
-                createHistory({ stack: [], indexNavigation: -1 })
+                createUserHistory({ stack: [], indexNavigation: -1 })
             ).toBeTruthy();
         });
         it('should push stack', () => {
             const history = [1, 2, 3, 4, 5].reduce(
                 (history, page) =>
                     history.push({
-                        type: 'posts',
+                        type: 'paginated',
                         page,
                     }),
-                createInitialHistory()
+                createInitialUserHistory()
             );
             expect(history.current()).toStrictEqual({
-                type: 'posts',
+                type: 'paginated',
                 page: 5,
             });
             expect(
                 history.stack.every(
                     (history, index) =>
-                        history.type === 'posts' && history.page === index + 1
+                        history.type === 'paginated' &&
+                        history.page === index + 1
                 )
             ).toBe(true);
         });
@@ -58,16 +59,16 @@ const testHistory = () => {
                     postIds.reduce(
                         (history, id) =>
                             history.push({
-                                type: 'post',
+                                type: 'one',
                                 id,
                             }),
-                        createInitialHistory()
+                        createInitialUserHistory()
                     )
                 )
             );
 
             const push = {
-                type: 'posts',
+                type: 'paginated',
                 page: 1,
             } as const;
             // should only push at here
@@ -75,7 +76,7 @@ const testHistory = () => {
             expect(newHistory.current()).toBe(push);
             expect(newHistory.stack).toStrictEqual([
                 ...postIds.map((id) => ({
-                    type: 'post',
+                    type: 'one',
                     id,
                 })),
                 push,
@@ -87,22 +88,22 @@ const testHistory = () => {
                 ['test', 'random', 'stuff', 'backward', 'traverse'].reduce(
                     (history, id) =>
                         history.push({
-                            type: 'post',
+                            type: 'one',
                             id,
                         }),
-                    createInitialHistory()
+                    createInitialUserHistory()
                 )
             );
 
             const overwrite = {
-                type: 'posts',
+                type: 'paginated',
                 page: -1,
             } as const;
             // should overwrite at here
             const newHistory = history.push(overwrite);
             expect(newHistory.current()).toBe(overwrite);
             expect(newHistory.stack).toStrictEqual([
-                { type: 'post', id: 'test' },
+                { type: 'one', id: 'test' },
                 overwrite,
             ]);
         });
@@ -112,10 +113,10 @@ const testHistory = () => {
             const history = postIds.reduce(
                 (history, id) =>
                     history.push({
-                        type: 'post',
+                        type: 'one',
                         id,
                     }),
-                createInitialHistory()
+                createInitialUserHistory()
             );
 
             // test backward traversing
@@ -128,7 +129,7 @@ const testHistory = () => {
                     if (
                         current &&
                         !(
-                            current.type === 'post' &&
+                            current.type === 'one' &&
                             current.id === id &&
                             equal(
                                 newHistory.forward().current(),
@@ -144,7 +145,7 @@ const testHistory = () => {
                 }, history);
 
             const backward = {
-                type: 'post',
+                type: 'one',
                 id: 'test',
             } as const;
             // expect the current state to be accurate after traversing backward
@@ -165,7 +166,7 @@ const testHistory = () => {
                     const current = newHistory.current();
                     if (
                         current &&
-                        !(current.type === 'post' && current.id === id)
+                        !(current.type === 'one' && current.id === id)
                     ) {
                         throw new Error(
                             `item does not match for ${newHistory}`
@@ -176,7 +177,7 @@ const testHistory = () => {
 
             // test forward traversing
             const traverse = {
-                type: 'post',
+                type: 'one',
                 id: 'traverse',
             };
             // expect the current state to be accurate after traversing forward
@@ -190,6 +191,5 @@ const testHistory = () => {
             );
         });
     });
-};
 
 export default testHistory;

@@ -29,7 +29,7 @@ build:
 
 ## clean-up:
 clean-up:
-	rm -rf src test script .github .git post post-operation pages docs
+	rm -rf src test script .github .git post pages docs
 
 ## start
 start:
@@ -42,14 +42,11 @@ eslint:
 lint-src:
 	make eslint folder=src
 
-lint-post-operation:
-	make eslint folder=post-operation
-
 lint-test:
 	make eslint folder=test
 
 lint:
-	(trap 'kill 0' INT; make lint-src & make lint-test & make lint-post-operation)
+	(trap 'kill 0' INT; make lint-src & make lint-test)
 
 ## format
 prettier=$(NODE_BIN)prettier
@@ -57,17 +54,14 @@ prettier=$(NODE_BIN)prettier
 prettify-src:
 	$(prettier) --$(type) src/
 
-prettify-post-operation:
-	$(prettier) --$(type) post-operation/
-
 prettify-test:
 	$(prettier) --$(type) test/
 
 format-check:
-	(trap 'kill 0' INT; make prettify-src type=check & make prettify-test type=check & make prettify-post-operation type=check)
+	(trap 'kill 0' INT; make prettify-src type=check & make prettify-test type=check)
 
 format:
-	(trap 'kill 0' INT; make prettify-src type=write & make prettify-test type=write & make prettify-post-operation type=write)
+	(trap 'kill 0' INT; make prettify-src type=write & make prettify-test type=write)
 
 ## typecheck
 tsc=$(NODE_BIN)tsc
@@ -82,40 +76,6 @@ typecheck-watch:
 test:
 	$(NODE_BIN)esbuild test/index.ts --bundle --minify --target=node16.3.1 --platform=node --outfile=__test__/index.test.js &&\
 		$(NODE_BIN)jest __test__
-
-## cli
-cli:
-	@read -p "What environment should this be carried out: " NODE_ENV &&\
-	echo "The environment is $${NODE_ENV}" &&\
-	node script/generate-env.js generate --env=$${NODE_ENV} &&\
-	$(NODE_BIN)esbuild post-operation/index.ts --bundle --minify --target=node16.3.1 --platform=node --outfile=dist/index.js\
-
-cli-read: cli
-	node dist/index.js read
-
-cli-insert: cli
-	node dist/index.js insert
-
-cli-insert-template: cli
-	node dist/index.js insert-template
-
-cli-publish: cli
-	@read -p "What is the id of the post need to be published: " id &&\
-	echo "The id of the post to be published is $${id}" &&\
-	node dist/index.js publish --id=$${id}
-
-cli-update: cli
-	node dist/index.js update
-
-cli-update-template: cli
-	@read -p "What is the id of the post need to generate its template: " id &&\
-	echo "The id of the post to with template generated is $${id}" &&\
-	node dist/index.js update-template --id=$${id}
-
-cli-delete: cli
-	@read -p "What is the id of the post need to be deleted: " id &&\
-	echo "The id of the post to be deleted is $${id}" &&\
-	node dist/index.js delete --id=$${id}
 
 ## mongo setup and installation
 # ref: https://www.digitalocean.com/community/tutorials/how-to-install-mongodb-on-ubuntu-20-04
